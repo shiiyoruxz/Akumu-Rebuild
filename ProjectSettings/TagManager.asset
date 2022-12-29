@@ -4,7 +4,14 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Monster
+  - Battery
+  - SlideDoor
+  - PushDoor
+  - PushDoor2Side
+  - LockerDoor
+  - LockedDoor
+  - MusicDoor
+  - JumpScareDoor
   layers:
   - Default
   - TransparentFX
