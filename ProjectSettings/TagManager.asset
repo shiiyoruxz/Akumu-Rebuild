@@ -5,13 +5,25 @@ TagManager:
   serializedVersion: 2
   tags:
   - Battery
-  - SlideDoor
-  - PushDoor
-  - PushDoor2Side
   - LockerDoor
   - LockedDoor
   - MusicDoor
   - JumpScareDoor
+  - ClassroomDoor
+  - LabDoor
+  - ToiletDoor
+  - LabDoor2
+  - InfirmaryTwoDoor
+  - InfirmaryOneDoor
+  - GymSlideDoor
+  - GymOnePushDoor
+  - GymSD1
+  - GymSD3
+  - GymSD2
+  - LibraryDoor
+  - Collectible
+  - Book
+  - ToiletInDoor
   layers:
   - Default
   - TransparentFX
