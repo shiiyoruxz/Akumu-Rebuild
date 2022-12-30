@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Playables;
@@ -9,11 +10,11 @@ using UnityEngine.SceneManagement;
 public class MainMenuManager : MonoBehaviour
 {
     private bool _isQuit = false;
-    private bool _triggerLoad = false;
+    private bool _triggerLoadingScreen = false;
     private float _timer = 0;
+    
     private string _scenelToLoad;
-    private string _loadingPanelUI;
-    private string _loadingIcon;
+
     private string[] _toolTipsText = { "Press [F] to turn the flashlight ON/OFF", 
                                         "Press [ESC] to open in-game menu or pause the game",
                                         "Use [W], [A], [S], [D] to move your character around",
@@ -22,32 +23,37 @@ public class MainMenuManager : MonoBehaviour
                                         "Press [Shift] to sprint your character" };
 
     public TextMeshProUGUI targetText;
+    public PlayableDirector director;
     public AudioClip buttonClickedSound;
     public GameObject loadingScreen;
-    public PlayableDirector director;
-    public static bool instrucPressed = false;
     public GameObject mainMenuCanvas;
     public GameObject mainMenuVCam;
+    
+    public List<GameObject> canvasSelectionList = new List<GameObject>();
+
+    public static bool triggerSelectedSelection = false;
+    
+    // public static bool instrucPressed = false;
+    // public static bool optionPressed = false;
 
     // Start is called before the first frame update
     void Start()
     {
-        _loadingPanelUI = "LoadingPanelUI";
-        _loadingIcon = "LoadingIcon";
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (_triggerLoad) 
+        if (_triggerLoadingScreen) 
         {
-            loadingScreen.transform.Find(_loadingPanelUI).Find(_loadingIcon).gameObject.transform.Rotate(0.0f, 0.0f, 1.0f);
+            loadingScreen.transform.GetChild(0).GetChild(1).gameObject.transform.Rotate(0.0f, 0.0f, 1.0f);
             SwapToolTipsText(5.0f);
         }
 
         //Debug.Log("Instruction pressed?: " + instrucPressed);
         
-        if (instrucPressed && mainMenuCanvas.activeSelf == false)
+        if (triggerSelectedSelection && mainMenuCanvas.activeSelf == false)
         {
             director.Resume();
 
@@ -122,22 +128,29 @@ public class MainMenuManager : MonoBehaviour
         PlayButtonClickedSound();
         mainMenuCanvas.SetActive(false);
         loadingScreen.SetActive(true);
-        _triggerLoad = true;
+        _triggerLoadingScreen = true;
         StartCoroutine(SwitchScene(20.0f));
     }
 
     public void InstructionButtonClicked()
     {
         mainMenuVCam.SetActive(false);
-        instrucPressed = true;
-        //_scenelToLoad = "InstructionsScene";
+        triggerSelectedSelection = true;
         PlayButtonClickedSound();
-        //mainMenuScreen.SetActive(false);
-        //loadingScreen.SetActive(true);
-        //_triggerLoad = true;
-        //StartCoroutine(SwitchScene(5.0f));
-        // if (mainMenuCanvas.activeSelf == false)
-        //     director.Resume();
+        ShowCanvasSelection.canvasToShow = canvasSelectionList[0];
+    }
+
+    public void OptionButtonClicked()
+    {
+        mainMenuVCam.SetActive(false);
+        triggerSelectedSelection = true;
+        PlayButtonClickedSound();
+        ShowCanvasSelection.canvasToShow = canvasSelectionList[1];
+    }
+
+    public void CreditButtonClicked()
+    {
+        
     }
 
     public void QuitButtonClicked()

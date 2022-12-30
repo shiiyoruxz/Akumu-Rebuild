@@ -45,7 +45,7 @@ public class FadeInBtn : MonoBehaviour
             showMenuBtn = false;
         }
 
-        if (MainMenuManager.instrucPressed && finishHide == false)
+        if (MainMenuManager.triggerSelectedSelection && finishHide == false || MainMenuManager.triggerSelectedSelection && finishHide == false)
         {
             //MainMenuManager.instrucPressed = false;
             finishHide = true;
