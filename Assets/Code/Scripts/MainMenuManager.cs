@@ -32,9 +32,6 @@ public class MainMenuManager : MonoBehaviour
     public List<GameObject> canvasSelectionList = new List<GameObject>();
 
     public static bool triggerSelectedSelection = false;
-    
-    // public static bool instrucPressed = false;
-    // public static bool optionPressed = false;
 
     // Start is called before the first frame update
     void Start()
@@ -51,8 +48,6 @@ public class MainMenuManager : MonoBehaviour
             SwapToolTipsText(5.0f);
         }
 
-        //Debug.Log("Instruction pressed?: " + instrucPressed);
-        
         if (triggerSelectedSelection && mainMenuCanvas.activeSelf == false)
         {
             director.Resume();
@@ -60,11 +55,7 @@ public class MainMenuManager : MonoBehaviour
             if (director.initialTime == 5.0f)
             {
                 director.initialTime = 0.0f;
-                //mainMenuVCam.SetActive(true);
-                Debug.Log("YesYesYes");
-                //director.Evaluate();
                 director.Play();
-                //director.Resume();
             }
         }
     }
@@ -99,7 +90,8 @@ public class MainMenuManager : MonoBehaviour
         }
         else
         {
-            AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(_scenelToLoad);   
+            AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(_scenelToLoad);
+            AudioManager.Instance.StopMusic();
             // while (!asyncLoad.isDone)
             // {
             //     yield return null;

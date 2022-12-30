@@ -4,7 +4,6 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
-using UnityEngine.UIElements;
 
 public class FadeInBtn : MonoBehaviour
 {
@@ -16,6 +15,7 @@ public class FadeInBtn : MonoBehaviour
     
     private List<CanvasGroup> _btnCanvasGroupList = new List<CanvasGroup>();
     private bool _initBtnCanvasGroup = true;
+    private bool _triggInteractable = false;
 
     // Start is called before the first frame update
     void Start()
@@ -43,13 +43,28 @@ public class FadeInBtn : MonoBehaviour
         {
             StartCoroutine(TriggerFade(true));
             showMenuBtn = false;
+            _triggInteractable = true;
+        }
+        
+        if (panelUIObject.activeSelf && _btnCanvasGroupList[0].alpha == 1 && _btnCanvasGroupList[4].alpha == 1 && _triggInteractable)
+        {
+            for (int i = 0; i < btnObjList.Count; i++)
+            {
+                btnObjList[i].GetComponent<Button>().interactable = true;
+            }
         }
 
-        if (MainMenuManager.triggerSelectedSelection && finishHide == false || MainMenuManager.triggerSelectedSelection && finishHide == false)
+        if (MainMenuManager.triggerSelectedSelection && finishHide == false)
         {
             //MainMenuManager.instrucPressed = false;
             finishHide = true;
+            _triggInteractable = false;
             StartCoroutine(TriggerFade(false));
+            
+            for (int i = 0; i < btnObjList.Count; i++)
+            {
+                btnObjList[i].GetComponent<Button>().interactable = false;
+            }
         }
 
         if (panelUIObject.activeSelf && showMenuBtn == false && finishHide)
