@@ -12,6 +12,7 @@ public class PressKeyContinue : MonoBehaviour
     public TextMeshProUGUI pressKeyText;
     private float _alpha;
 
+    private bool _test = false;
     private bool _keyIsPressed = false;
     public PlayableDirector director;
 
@@ -41,9 +42,22 @@ public class PressKeyContinue : MonoBehaviour
             textObject.SetActive(false);
         }
 
-        if (director.state == PlayState.Paused && _keyIsPressed)
+        if (director.time >= 5.0f && panelUIObject.activeSelf == false && _test == false)
         {
+            if (_test == false)
+            {
+                _test = true;
+                director.Pause();
+            }
+            // else
+            // {
+            //     Debug.Log("Test here works");
+            //     // director.Play();
+            //     // director.Evaluate();
+            // }
+            // //director.initialTime = 5.0f;
             panelUIObject.SetActive(true);
         }
+        //Debug.Log("Time" + director.time);
     }
 }
