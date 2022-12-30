@@ -1,17 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class AIDoorOpen : MonoBehaviour
 {
     public float doorOpenTime = 3.0f;
-    public List<GameObject> doorType = new List<GameObject>();
+    public List<GameObject> twoDoorType = new List<GameObject>();
+
+    public static string[] doorTags = { "ClassroomDoor", "ToiletDoor", "InfirmaryTwoDoor", "InfirmaryOneDoor", "GymOnePushDoor", "LibraryDoor", "ToiletInDoor" };
     
     private bool doorIsOpen = false;
     private float doorTimer = 0.0f;
     private GameObject currentDoor;
+    int startIndex = 0;
+    int endIndex = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -22,154 +25,101 @@ public class AIDoorOpen : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        DoorInteraction();
+    }
+
+    void DoorInteraction()
+    {
         RaycastHit hit;
 
         // while raycast hit the collider of the door
-        if(Physics.Raycast(transform.position, transform.forward, out hit, 2.0f))
+        if (Physics.Raycast(transform.position, transform.forward, out hit, 2.0f))
         {
-            if (hit.collider.gameObject.tag == "ClassroomDoor" && doorIsOpen == false)
+            foreach (string doorTag in doorTags)
             {
-                currentDoor = hit.collider.gameObject;
-                OpenDoor(currentDoor);
+                if (hit.collider.gameObject.tag == doorTag && doorIsOpen == false)
+                {
+                    currentDoor = hit.collider.gameObject;
+                    OpenDoor(currentDoor);
+                }
             }
-            if (hit.collider.gameObject.tag == "ToiletDoor" && doorIsOpen == false)
-            {
-                currentDoor = hit.collider.gameObject;
-                OpenDoor(currentDoor);
-            }
-            if (hit.collider.gameObject.tag == "InfirmaryTwoDoor" && doorIsOpen == false)
-            {
-                currentDoor = hit.collider.gameObject;
-                OpenDoor(currentDoor);
-            }
-            if (hit.collider.gameObject.tag == "InfirmaryOneDoor" && doorIsOpen == false)
-            {
-                currentDoor = hit.collider.gameObject;
-                OpenDoor(currentDoor);
-            }
-            if (hit.collider.gameObject.tag == "GymOnePushDoor" && doorIsOpen == false)
-            {
-                currentDoor = hit.collider.gameObject;
-                OpenDoor(currentDoor);
-            }
-            if (hit.collider.gameObject.tag == "LibraryDoor" && doorIsOpen == false)
-            {
-                currentDoor = hit.collider.gameObject;
-                OpenDoor(currentDoor);
-            }
-            if (hit.collider.gameObject.tag == "ToiletInDoor" && doorIsOpen == false)
-            {
-                currentDoor = hit.collider.gameObject;
-                OpenDoor(currentDoor);
-            }
+
             if (hit.collider.gameObject.tag == "LabDoor" && doorIsOpen == false)
             {
                 currentDoor = hit.collider.gameObject;
-                for (int i = 1; i < 3; i++)
-                {
-                    GameObject door = doorType[i];
-                    doorIsOpen = true; 
-                    door.GetComponent<Animator>().SetBool("Trigger", true);
-                }
+                startIndex = 0;
+                endIndex = 2;
+                OpenMultiDoor(startIndex, endIndex);
             }
+
             if (hit.collider.gameObject.tag == "LabDoor2" && doorIsOpen == false)
             {
                 currentDoor = hit.collider.gameObject;
-                for (int i = 4; i < 6; i++)
-                {
-                    GameObject door = doorType[i];
-                    doorIsOpen = true; 
-                    door.GetComponent<Animator>().SetBool("Trigger", true);
-                }
+                startIndex = 2;
+                endIndex = 4;
+                OpenMultiDoor(startIndex, endIndex);
             }
+
             if (hit.collider.gameObject.tag == "GymSD1" && doorIsOpen == false)
             {
                 currentDoor = hit.collider.gameObject;
-                for (int i = 8; i < 10; i++)
-                {
-                    GameObject door = doorType[i];
-                    doorIsOpen = true; 
-                    door.GetComponent<Animator>().SetBool("Trigger", true);
-                }
+                startIndex = 4;
+                endIndex = 8;
+                OpenMultiDoor(startIndex, endIndex);
             }
+
             if (hit.collider.gameObject.tag == "GymSD2" && doorIsOpen == false)
             {
                 currentDoor = hit.collider.gameObject;
-                for (int i = 10; i < 12; i++)
-                {
-                    GameObject door = doorType[i];
-                    doorIsOpen = true; 
-                    door.GetComponent<Animator>().SetBool("Trigger", true);
-                }
+                startIndex = 6;
+                endIndex = 8;
+                OpenMultiDoor(startIndex, endIndex);
             }
+
             if (hit.collider.gameObject.tag == "GymSD3" && doorIsOpen == false)
             {
                 currentDoor = hit.collider.gameObject;
-                for (int i = 12; i < 14; i++)
-                {
-                    GameObject door = doorType[i];
-                    doorIsOpen = true; 
-                    door.GetComponent<Animator>().SetBool("Trigger", true);
-                }
+                startIndex = 8;
+                endIndex = 10;
+                OpenMultiDoor(startIndex, endIndex);
             }
         }
-        
-        // detect the door status (shut / open)
-        if(doorIsOpen)
+
+        // detect the door status (shut / open)if (doorIsOpen)
+        if (doorIsOpen)
         {
             doorTimer += Time.deltaTime;
-            if(doorTimer > doorOpenTime)
+            if (doorTimer > doorOpenTime)
             {
                 if (currentDoor.tag == "LabDoor")
                 {
-                    for (int i = 1; i < 3; i++)
-                    {
-                        GameObject currentDoor = doorType[i];
-                        doorIsOpen = false;
-                        currentDoor.GetComponent<Animator>().SetBool("Trigger", false);
-                    }
-                    doorTimer = 0;
+                    startIndex = 0;
+                    endIndex = 2;
+                    ShutMultiDoor(startIndex, endIndex);
                 }
                 else if (currentDoor.tag == "LabDoor2")
                 {
-                    for (int i = 4; i < 6; i++)
-                    {
-                        GameObject currentDoor = doorType[i];
-                        doorIsOpen = false;
-                        currentDoor.GetComponent<Animator>().SetBool("Trigger", false);
-                    }
-                    doorTimer = 0;
+                    startIndex = 2;
+                    endIndex = 4;
+                    ShutMultiDoor(startIndex, endIndex);
                 }
                 else if (currentDoor.tag == "GymSD1")
                 {
-                    for (int i = 8; i < 10; i++)
-                    {
-                        GameObject currentDoor = doorType[i];
-                        doorIsOpen = false;
-                        currentDoor.GetComponent<Animator>().SetBool("Trigger", false);
-                    }
-                    doorTimer = 0;
+                    startIndex = 4;
+                    endIndex = 6;
+                    ShutMultiDoor(startIndex, endIndex);
                 }
                 else if (currentDoor.tag == "GymSD2")
                 {
-                    for (int i = 10; i < 12; i++)
-                    {
-                        GameObject currentDoor = doorType[i];
-                        doorIsOpen = false;
-                        currentDoor.GetComponent<Animator>().SetBool("Trigger", false);
-                    }
-                    doorTimer = 0;
+                    startIndex = 6;
+                    endIndex = 8;
+                    ShutMultiDoor(startIndex, endIndex);
                 }
                 else if (currentDoor.tag == "GymSD3")
                 {
-                    for (int i = 12; i < 14; i++)
-                    {
-                        GameObject currentDoor = doorType[i];
-                        doorIsOpen = false;
-                        currentDoor.GetComponent<Animator>().SetBool("Trigger", false);
-                    }
-                    doorTimer = 0;
+                    startIndex = 8;
+                    endIndex = 12;
+                    ShutMultiDoor(startIndex, endIndex);
                 }
                 else
                 {
@@ -177,6 +127,15 @@ public class AIDoorOpen : MonoBehaviour
                     doorTimer = 0.0f;
                 }
             }
+        }
+    }
+
+    void OpenMultiDoor(int startIndex, int endIndex)
+    {
+        for (int i = startIndex; i < endIndex; i++)
+        {
+            GameObject door = twoDoorType[i];
+            OpenDoor(door);
         }
     }
     
@@ -187,6 +146,16 @@ public class AIDoorOpen : MonoBehaviour
         // audio.Play();
         doorIsOpen = true; 
         door.GetComponent<Animator>().SetBool("Trigger", true);
+    }
+    
+    void ShutMultiDoor(int startIndex, int endIndex)
+    {
+        for (int i = startIndex; i < endIndex; i++)
+        {
+            GameObject door = twoDoorType[i];
+            ShutDoor(door);
+        }
+        doorTimer = 0;
     }
     
     void ShutDoor(GameObject door)
