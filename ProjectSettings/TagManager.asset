@@ -10,6 +10,8 @@ TagManager:
   - destroyDoor
   - jumpScare
   - gameOver
+  - Collectable
+  - Torchlight
   layers:
   - Default
   - TransparentFX
