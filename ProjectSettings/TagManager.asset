@@ -12,6 +12,9 @@ TagManager:
   - gameOver
   - Collectable
   - Torchlight
+  - Battery
+  - Locker
+  - lockercam
   layers:
   - Default
   - TransparentFX
