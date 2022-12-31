@@ -116,7 +116,7 @@ public class MainMenuManager : MonoBehaviour
 
     public void PlayButtonClicked()
     {
-        _scenelToLoad = "SampleScene";
+        _scenelToLoad = "CutSceneScene";
         PlayButtonClickedSound();
         mainMenuCanvas.SetActive(false);
         loadingScreen.SetActive(true);
