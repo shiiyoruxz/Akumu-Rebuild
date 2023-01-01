@@ -6,8 +6,8 @@ public class Inventory : MonoBehaviour
 {
     public GameObject torchLight;
     public bool gotLight = false;
-    public int numBattery = 1;
 
+    public static int numBattery = 0;
     public int inventoryCount;
 
     private string torchlight;

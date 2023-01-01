@@ -41,6 +41,7 @@ TagManager:
   - dial_doorlocked
   - ToiletVent
   - Book
+  - RustedHouse
   layers:
   - Default
   - TransparentFX

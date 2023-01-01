@@ -22,13 +22,6 @@ public class MainManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
         
-        // if (CutsceneManager.currentCutscene >= 1)
-        // {
-        //     Debug.Log("Door destroy");
-        //     destroyDoor = GameObject.FindWithTag("destroyDoor");
-        //     destroyDoor.transform.localPosition = new Vector3(0, 0.015f, -1.352f);
-        //     destroyDoor.transform.localRotation = Quaternion.Euler(-89.386f, 0, 0);
-        // }
 
     }
 
@@ -45,7 +38,6 @@ public class MainManager : MonoBehaviour
     {
         if (CutsceneManager.currentCutscene == 1)
         {
-            // gameObject.transform.GetChild(1).transform.localPosition = new Vector3(64.7f, 12.8f, -1.72f); 
             gameObject.transform.GetChild(4).transform.gameObject.SetActive(true);
         }
     }
