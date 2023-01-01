@@ -26,7 +26,7 @@ public class EscPauseGame : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) && PlayerInteraction.digitalLockIsOpen == false)
         {
             Debug.Log("Esc Pressed");
             gameIsPaused = !gameIsPaused;
@@ -46,7 +46,7 @@ public class EscPauseGame : MonoBehaviour
         if (gameIsPaused && _triggerLoading == false)
         {
             Time.timeScale = 0.0f;
-            ESCPanelList[0].transform.parent.gameObject.GetComponent<Canvas>().sortingOrder = 1;
+            ESCPanelList[0].transform.parent.gameObject.GetComponent<Canvas>().sortingOrder = 3;
             ESCPanelList[0].GetComponentInParent<Volume>().enabled = true;
             firstPersonController.GetComponent<FirstPersonController>().enabled = false;
             Cursor.lockState = CursorLockMode.None;
@@ -68,6 +68,7 @@ public class EscPauseGame : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         for (int i = 0; i < ESCPanelList.Count; i++)
         {
+            ESCPanelList[i].transform.parent.gameObject.GetComponent<Canvas>().sortingOrder = 0;
             ESCPanelList[i].GetComponent<CanvasGroup>().alpha = 0;
             ESCPanelList[i].GetComponent<CanvasGroup>().interactable = false;
         }
@@ -114,7 +115,7 @@ public class EscPauseGame : MonoBehaviour
         ESCPanelList[0].GetComponent<CanvasGroup>().alpha = 0;
         ESCPanelList[0].GetComponent<CanvasGroup>().interactable = false;
         
-        ESCPanelList[1].transform.parent.gameObject.GetComponent<Canvas>().sortingOrder = 1;
+        ESCPanelList[1].transform.parent.gameObject.GetComponent<Canvas>().sortingOrder = 5;
         //ESCCanvasList[1].SetActive(true);
         ESCPanelList[1].GetComponent<CanvasGroup>().alpha = 1;
         ESCPanelList[1].GetComponent<CanvasGroup>().interactable = true;
@@ -127,7 +128,7 @@ public class EscPauseGame : MonoBehaviour
         ESCPanelList[1].GetComponent<CanvasGroup>().alpha = 0;
         ESCPanelList[1].GetComponent<CanvasGroup>().interactable = false;
         
-        ESCPanelList[0].transform.parent.gameObject.GetComponent<Canvas>().sortingOrder = 1;
+        ESCPanelList[0].transform.parent.gameObject.GetComponent<Canvas>().sortingOrder = 3;
         //ESCCanvasList[0].SetActive(true);
         ESCPanelList[0].GetComponent<CanvasGroup>().alpha = 1;
         ESCPanelList[0].GetComponent<CanvasGroup>().interactable = true;;
@@ -144,7 +145,7 @@ public class EscPauseGame : MonoBehaviour
         ESCPanelList[0].GetComponent<CanvasGroup>().alpha = 0;
         ESCPanelList[0].GetComponent<CanvasGroup>().interactable = false;
         
-        ESCPanelList[2].transform.parent.gameObject.GetComponent<Canvas>().sortingOrder = 1;
+        ESCPanelList[2].transform.parent.gameObject.GetComponent<Canvas>().sortingOrder = 5;
         //ESCCanvasList[2].SetActive(true);
         ESCPanelList[2].GetComponent<CanvasGroup>().alpha = 1;
         StartCoroutine(SwitchScene(3.0f));

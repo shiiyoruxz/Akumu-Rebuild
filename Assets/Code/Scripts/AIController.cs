@@ -17,7 +17,7 @@ public class AIController : MonoBehaviour
     public Transform[] patrolPoints;
     private float waitTime = 2.0f;
     private float chaseTime;
-    private int currentPointIndex;
+    private int currentPointIndex = 0;
 
     private bool once;
     private string targetTag = "Player";
@@ -28,6 +28,9 @@ public class AIController : MonoBehaviour
     public bool isPatrol;
     public bool isChase;
     public bool isAttack;
+
+    public int previousPatrolPhase;
+    public static int patrolPhase = 0;
     
     // Start is called before the first frame update
     void Start()
@@ -35,11 +38,18 @@ public class AIController : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         anim = GetComponent<Animator>();
         AIView = GetComponent<FieldOfView>();
+
+        previousPatrolPhase = patrolPhase;
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (previousPatrolPhase != patrolPhase)
+        {
+            patrolPhase = AIController.patrolPhase;
+        }
+        
         if (AIView.canSeePlayer)
         {
             isChase = true;
@@ -80,7 +90,7 @@ public class AIController : MonoBehaviour
     IEnumerator Wait()
     {
         yield return new WaitForSeconds(waitTime);
-        if (currentPointIndex + 1 < patrolPoints[EventTriggerSystem.dialPhase].childCount)
+        if (currentPointIndex + 1 < patrolPoints[patrolPhase].childCount)
         {
             currentPointIndex++;
         }
@@ -94,21 +104,31 @@ public class AIController : MonoBehaviour
 
     private void Patrolling()
     {
-        agent.speed = 2.0f;
-        if (Vector3.Distance(transform.position, destination) > 1.0f)
+        agent.speed = 3.0f;
+        if (currentPointIndex >= 0 && currentPointIndex < patrolPoints[patrolPhase].transform.childCount)
         {
-            destination = patrolPoints[EventTriggerSystem.dialPhase].GetChild(currentPointIndex).position;
-            agent.destination = destination;
+            if (Vector3.Distance(transform.position, destination) > 1.0f)
+            {
+                destination = patrolPoints[patrolPhase].transform.GetChild(currentPointIndex).position;
+                agent.destination = destination;
+            }
+            else
+            {
+                if (!once)
+                {
+                    once = true;
+                    StartCoroutine(Wait());
+                }
+           
+            }
+
         }
         else
         {
-            if (!once)
-            {
-                once = true;
-                StartCoroutine(Wait());
-            }
-           
+            destination = patrolPoints[patrolPhase].transform.GetChild(currentPointIndex).position;
+            agent.destination = destination;
         }
+        
     }
     
     private void Chasing()
@@ -154,7 +174,7 @@ public class AIController : MonoBehaviour
     IEnumerator setDestination()
     {
         yield return new WaitForSeconds(waitTime);
-        destination = patrolPoints[EventTriggerSystem.dialPhase].GetChild(currentPointIndex).position;
+        destination = patrolPoints[patrolPhase].GetChild(currentPointIndex).position;
     }
 
     void triggerJumpScare()
