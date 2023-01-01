@@ -45,7 +45,7 @@ public class FadeInBtn : MonoBehaviour
             showMenuBtn = false;
             _triggInteractable = true;
         }
-        
+
         if (panelUIObject.activeSelf && _btnCanvasGroupList[0].alpha == 1 && _btnCanvasGroupList[4].alpha == 1 && _triggInteractable)
         {
             for (int i = 0; i < btnObjList.Count; i++)

@@ -31,7 +31,7 @@ public class ShowCanvasSelection : MonoBehaviour
 
         if (director.time <= 5.0f && _mainMenuBtnPressed == true)
         {
-            Debug.Log("Helloasdasdassd");
+            // Debug.Log("Helloasdasdassd");
 
             // director.timeUpdateMode = DirectorUpdateMode.GameTime;
             // director.Evaluate();

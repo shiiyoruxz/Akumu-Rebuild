@@ -11,7 +11,6 @@ public class AIController : MonoBehaviour
     public NavMeshAgent agent;
     private FieldOfView AIView;
     private Animator anim;
-    private EventTriggerSystem triggerSys;
     public GameObject jumpScare;
     public GameObject gameOver;
     
@@ -21,6 +20,7 @@ public class AIController : MonoBehaviour
     private int currentPointIndex;
 
     private bool once;
+    private string targetTag = "Player";
     private Vector3 destination;
     
     private bool inAttackRange;
@@ -35,13 +35,11 @@ public class AIController : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         anim = GetComponent<Animator>();
         AIView = GetComponent<FieldOfView>();
-        triggerSys = GameObject.Find("FirstPersonControllerPrefab").GetComponent<EventTriggerSystem>();
     }
-    
+
     // Update is called once per frame
     void Update()
     {
-        Debug.Log("AI UPDATE");
         if (AIView.canSeePlayer)
         {
             isChase = true;
@@ -57,12 +55,6 @@ public class AIController : MonoBehaviour
                 {
                     isChase = false;
                 }
-            }
-
-            if (inAttackRange)
-            {
-                isAttack = true;
-                Attacking();
             }
 
         }
@@ -88,7 +80,7 @@ public class AIController : MonoBehaviour
     IEnumerator Wait()
     {
         yield return new WaitForSeconds(waitTime);
-        if (currentPointIndex + 1 < patrolPoints[triggerSys.dialPhase-1].childCount)
+        if (currentPointIndex + 1 < patrolPoints[EventTriggerSystem.dialPhase].childCount)
         {
             currentPointIndex++;
         }
@@ -105,7 +97,7 @@ public class AIController : MonoBehaviour
         agent.speed = 2.0f;
         if (Vector3.Distance(transform.position, destination) > 1.0f)
         {
-            destination = patrolPoints[triggerSys.dialPhase-1].GetChild(currentPointIndex).position;
+            destination = patrolPoints[EventTriggerSystem.dialPhase].GetChild(currentPointIndex).position;
             agent.destination = destination;
         }
         else
@@ -141,9 +133,18 @@ public class AIController : MonoBehaviour
 
     }
     
-    private void Attacking()
+    // private void Attacking()
+    // {
+    //     if (Vector3.Distance(transform.position, AIView.playerRef.transform.position) < 1.0f)
+    //     {
+    //         triggerJumpScare();
+    //         StartCoroutine(triggerGameOver());
+    //     }
+    // }
+
+    private void OnCollisionEnter(Collision col)
     {
-        if (Vector3.Distance(transform.position, AIView.playerRef.transform.position) < 1.0f)
+        if (col.transform.CompareTag(targetTag))
         {
             triggerJumpScare();
             StartCoroutine(triggerGameOver());
@@ -153,7 +154,7 @@ public class AIController : MonoBehaviour
     IEnumerator setDestination()
     {
         yield return new WaitForSeconds(waitTime);
-        destination = patrolPoints[triggerSys.dialPhase-1].GetChild(currentPointIndex).position;
+        destination = patrolPoints[EventTriggerSystem.dialPhase].GetChild(currentPointIndex).position;
     }
 
     void triggerJumpScare()

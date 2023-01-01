@@ -15,7 +15,7 @@ public class MainMenuManager : MonoBehaviour
     
     private string _scenelToLoad;
 
-    private string[] _toolTipsText = { "Press [F] to turn the flashlight ON/OFF", 
+    public static string[] toolTipsText = { "Press [F] to turn the flashlight ON/OFF", 
                                         "Press [ESC] to open in-game menu or pause the game",
                                         "Use [W], [A], [S], [D] to move your character around",
                                         "Press [E] to interact with objects",
@@ -72,8 +72,8 @@ public class MainMenuManager : MonoBehaviour
         _timer += Time.deltaTime;
         if (_timer >= seconds)
         {
-            int randomIndex = UnityEngine.Random.Range(0, _toolTipsText.Length);
-            targetText.text = _toolTipsText[randomIndex];
+            int randomIndex = UnityEngine.Random.Range(0, toolTipsText.Length);
+            targetText.text = toolTipsText[randomIndex];
 
             _timer = 0;
         }
@@ -121,6 +121,7 @@ public class MainMenuManager : MonoBehaviour
         mainMenuCanvas.SetActive(false);
         loadingScreen.SetActive(true);
         _triggerLoadingScreen = true;
+        //FadeInBtn.showMenuBtn = true;
         StartCoroutine(SwitchScene(20.0f));
     }
 
@@ -150,5 +151,10 @@ public class MainMenuManager : MonoBehaviour
         _isQuit = true;
         PlayButtonClickedSound();
         StartCoroutine(SwitchScene(5.0f));
+    }
+
+    public static void DestroyOnReturnMenu()
+    {
+        Destroy(GameObject.Find("NoDestroyObject"));
     }
 }

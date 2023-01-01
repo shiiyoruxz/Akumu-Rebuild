@@ -28,18 +28,26 @@ public class CutsceneLoader : MonoBehaviour
 
     private void Update()
     {
-        if (!timeline[num].transform.gameObject.activeSelf)
+        if (num < timeline.Length-1)
         {
-            num++;
-            // Debug.Log(num);
-            timelineIsCompleted = true;
-            SceneManager.LoadSceneAsync(1);
+            if (!timeline[num].transform.gameObject.activeSelf)
+            {
+                num++;
+                // Debug.Log(num);
+                timelineIsCompleted = true;
+                SceneManager.LoadSceneAsync(1);
+            }
+            else
+            {
+                // Time.timeScale = 0;
+                // timelineIsCompleted = false;
+            }
         }
         else
         {
-            Time.timeScale = 0;
-            // timelineIsCompleted = false;
+            SceneManager.LoadSceneAsync(1);
         }
+
     }
     
 }

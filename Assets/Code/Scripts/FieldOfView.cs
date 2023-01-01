@@ -25,7 +25,6 @@ public class FieldOfView : MonoBehaviour
         anim = GetComponent<Animator>();
         playerRef = GameObject.FindGameObjectWithTag("Player");
         StartCoroutine(FOVRoutine());
-
         // Set the canSeePlayer flag to false
         canSeePlayer = false;
     }
