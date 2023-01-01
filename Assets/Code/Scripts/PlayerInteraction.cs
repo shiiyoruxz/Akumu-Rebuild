@@ -2,8 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerInteraction : MonoBehaviour
 {
@@ -15,32 +17,39 @@ public class PlayerInteraction : MonoBehaviour
     public static string[] doorTags =
     {
         "ClassroomDoor", "ToiletDoor", "InfirmaryTwoDoor", "InfirmaryOneDoor", "GymOnePushDoor", "LibraryDoor",
-        "ToiletInDoor"
+        "ToiletInDoor", "MusicDoor", "JumpScareDoor"
     };
-
+    public GameObject digitalPasswordUI;
+    public GameObject firstPersonController;
+    
     private bool doorIsOpen = true;
     private GameObject currentDoor;
+    private GameObject currentObject;
+    private GameObject playerCheckPoint;
+    private GameObject effect;
+    
     int startIndex = 0;
     int endIndex = 0;
 
     // Start is called before the first frame update
     void Start()
     {
-
+        digitalPasswordUI = GameObject.Find("DigitalPasswordLockPanel");
+        digitalPasswordUI.SetActive(false);
     }
 
     // Update is called once per frame
     void Update()
     {
         DoorInteraction();
-        ItemInteract();
+        MapInteraction();
     }
-
-    void ItemInteract()
+    
+    void MapInteraction()
     {
         RaycastHit hit;
 
-        // Item Pickup
+        // Map Interaction
         Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
 
         if (Physics.Raycast(ray, out hit, pickUpDistance))
@@ -54,13 +63,36 @@ public class PlayerInteraction : MonoBehaviour
                     PickUp();
                 }
             }
-
             if (hit.collider.tag == "Book")
             {
-                // Pick up the item
+                // Trigger Book
                 if (Input.GetKeyDown(KeyCode.E))
                 {
                     Read();
+                }
+            }
+            if (hit.collider.tag == "ToiletVent")
+            {
+                // Trigger Vent
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    currentObject = hit.collider.gameObject;
+                    ToiletEventTrigger(currentObject);
+                }
+            }
+            if (hit.collider.tag == "DigitalPasswordLock")
+            {
+                // Trigger Digital Password Lock
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    UnlockInfirmaryDoor();
+                }
+
+                if (digitalPasswordUI.activeSelf && Input.GetKeyDown(KeyCode.C))
+                {
+                    GameObject.Find("DigitalPasswordLockPanel").SetActive(false);
+                    Cursor.lockState = CursorLockMode.Locked;
+                    firstPersonController.GetComponent<FirstPersonController>().enabled = true;
                 }
             }
         }
@@ -94,7 +126,6 @@ public class PlayerInteraction : MonoBehaviour
                         }
                     }
                 }
-
                 // Check for a multi-door with a matching tag
                 if (hit.collider.gameObject.tag == "LabDoor")
                 {
@@ -131,10 +162,15 @@ public class PlayerInteraction : MonoBehaviour
                     endIndex = 10;
                     OpenCloseMultiDoor(startIndex, endIndex);
                 }
+                else if (hit.collider.gameObject.tag == "LockedDoor")
+                {
+                    DoorLockedDialogue();
+                }
             }
         }
     }
     
+    // Item Pickup
     void PickUp()
     {
         // Add the item to the player's inventory or perform some other action
@@ -150,6 +186,7 @@ public class PlayerInteraction : MonoBehaviour
         Debug.Log("Read Book");
     }
     
+    // Door Open
     void OpenDoor(GameObject door)
     {
         // AudioSource audio = GetComponent<AudioSource>();
@@ -159,6 +196,7 @@ public class PlayerInteraction : MonoBehaviour
         door.GetComponent<Animator>().SetBool("Trigger", true);
     }
     
+    // Door Close
     void ShutDoor(GameObject door)
     {
         // AudioSource audio = GetComponent<AudioSource>();
@@ -168,6 +206,7 @@ public class PlayerInteraction : MonoBehaviour
         door.GetComponent<Animator>().SetBool("Trigger", false);
     }
     
+    // Close and Open for Two Door
     void OpenCloseMultiDoor(int startIndex, int endIndex)
     {
         // Toggle doorIsOpen flag
@@ -180,5 +219,50 @@ public class PlayerInteraction : MonoBehaviour
             Animator animator = door.GetComponent<Animator>();
             animator.SetBool("Trigger", doorIsOpen);
         }
+    }
+
+    // Trigger LockedDoor
+    void DoorLockedDialogue()
+    {
+        Debug.Log("This Door Is Locked!");
+    }
+    
+    IEnumerator playerTeleportToLab()
+    {
+        // Wait for 3 seconds
+        yield return new WaitForSeconds(2.5f);
+
+        // Do something after 3 seconds
+        // Change player checkpoint
+        playerCheckPoint = GameObject.FindWithTag("Player");
+        playerCheckPoint.transform.localPosition = new Vector3(12.054f, 0.547f, -23.089f);
+        playerCheckPoint.transform.localRotation = Quaternion.Euler(0f, 357.9f, 0f);
+        
+        currentDoor = GameObject.Find("LockedLabDoor");
+        Debug.Log(currentDoor);
+        currentDoor.SetActive(false);
+        effect = GameObject.Find("DarkenScreen");
+        effect.GetComponent<Animator>().SetBool("Trigger", false);
+    }
+    
+    // Toilet Event
+    void ToiletEventTrigger(GameObject currentObject)
+    {
+        // Vent animate
+        currentObject.transform.localPosition = new Vector3(2.851f, 0.06018281f, 10.52258f);
+        currentObject.transform.localRotation = Quaternion.Euler(-90f, 112.884f, 0f);
+       
+        effect = GameObject.Find("DarkenScreen");
+        effect.GetComponent<Animator>().SetBool("Trigger", true);
+
+        StartCoroutine(playerTeleportToLab());
+    }
+
+    // Trigger Infirmary Digital Lock to unlock the Door
+    void UnlockInfirmaryDoor()
+    {
+        digitalPasswordUI.SetActive(true);
+        Cursor.lockState = CursorLockMode.None;
+        firstPersonController.GetComponent<FirstPersonController>().enabled = false;
     }
 }
