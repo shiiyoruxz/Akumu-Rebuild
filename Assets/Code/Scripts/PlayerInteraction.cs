@@ -25,7 +25,7 @@ public class PlayerInteraction : MonoBehaviour
     public GameObject firstPersonController;
     
     public static bool digitalLockIsOpen = false;
-    public static bool hintTextShow = true;
+    public static bool hintTextShow = false;
     private bool GameIsOver = false;
     private bool doorIsOpen = false;
     private bool ghostBookIsOpen = false;
@@ -109,7 +109,6 @@ public class PlayerInteraction : MonoBehaviour
                 gameObject.transform.GetChild(0).transform.GetChild(0).transform.GetChild(2).transform.GetChild(0).gameObject.SetActive(true);
             }
             
-
             // Check if the hit object has the "PickUp" tag
             if (hit.collider.tag == "Collectable")
             {
@@ -230,21 +229,12 @@ public class PlayerInteraction : MonoBehaviour
             // Check for a door in front of the player
             if (Physics.Raycast(transform.position, transform.forward, out hit, pickUpDistance))
             {
-                // Check for a door with a matching tag
+                // // Check for a door with a matching tag
                 foreach (string doorTag in doorTags)
                 {
                     if (hit.collider.gameObject.tag == doorTag)
                     {
-                    
-                        if (!doorIsOpen)
-                        {
-                            OpenDoor(hit.collider.gameObject);
-                        
-                        }
-                        else
-                        {
-                            ShutDoor(hit.collider.gameObject);
-                        }
+                        doorInteraction(hit.collider.gameObject);
                     }
                 }
                 
@@ -441,13 +431,19 @@ public class PlayerInteraction : MonoBehaviour
     }
 
     // Door Open
-    void OpenDoor(GameObject door)
+    void doorInteraction(GameObject door)
     {
         // AudioSource audio = GetComponent<AudioSource>();
         // audio.clip = openDoorSound[];
         // audio.Play();
-        doorIsOpen = true;
-        door.GetComponent<Animator>().SetBool("Trigger", true);
+        if (door.GetComponent<Animator>().GetBool("Trigger"))
+        {
+            door.GetComponent<Animator>().SetBool("Trigger", false);
+        }
+        else
+        {
+            door.GetComponent<Animator>().SetBool("Trigger", true);
+        }
     }
     
     // Door Close
