@@ -12,7 +12,7 @@ using UnityEngine.UI;
 public class PlayerInteraction : MonoBehaviour
 {
     public float pickUpDistance = 0.5f;
-
+    
     public float doorOpenTime = 3.0f;
     public List<GameObject> twoDoorType = new List<GameObject>();
 
@@ -27,7 +27,7 @@ public class PlayerInteraction : MonoBehaviour
     public static bool digitalLockIsOpen = false;
     public static bool hintTextShow = false;
     private bool GameIsOver = false;
-    private bool doorIsOpen = false;
+    private bool doorIsOpen = true;
     private bool ghostBookIsOpen = false;
     private bool diaryIsOpen = false;
     private GameObject currentDoor;
@@ -39,7 +39,8 @@ public class PlayerInteraction : MonoBehaviour
     
     int startIndex = 0;
     int endIndex = 0;
-    
+
+    public int itemIndex = 0;
     private static bool isHide = false;
     private static Transform temp_position;
 
@@ -55,7 +56,8 @@ public class PlayerInteraction : MonoBehaviour
     {
         DoorInteraction();
         MapInteraction();
-        
+        itemSwitching();
+        batteryCount();
         if (EscPauseGame.gameIsPaused)
         {
             gameObject.transform.GetChild(0).transform.GetChild(0).transform.GetChild(2).gameObject.SetActive(false);
@@ -286,6 +288,7 @@ public class PlayerInteraction : MonoBehaviour
                         {
                             AudioManager.Instance.PlaySFX("KeyUnlockedDoor");
                             hit.collider.gameObject.SetActive(false);
+                            doorUnlockHintText();
                         }
                         else
                         {
@@ -297,9 +300,10 @@ public class PlayerInteraction : MonoBehaviour
                         gameObject.transform.GetChild(2).GetChild(0).Find("dialNeedPwd").gameObject.SetActive(true);
                     }else if (hit.collider.gameObject.name == "LockedLibraryDoor")
                     {
-                        if (inventory.transform.Find("LibraryKey") != null)
+                        if (inventory.transform.Find("Library Key") != null)
                         {
                             hit.collider.gameObject.SetActive(false);
+                            doorUnlockHintText();
                         }
                         else
                         {
@@ -307,9 +311,10 @@ public class PlayerInteraction : MonoBehaviour
                         }
                     }else if (hit.collider.gameObject.name == "2fMaleLockedToiletDoor")
                     {
-                        if (inventory.transform.Find("MaleToiletKey") != null)
+                        if (inventory.transform.Find("Male Toilet Key") != null)
                         {
                             hit.collider.gameObject.SetActive(false);
+                            doorUnlockHintText();
                         }
                         else
                         {
@@ -347,7 +352,7 @@ public class PlayerInteraction : MonoBehaviour
                 }
                 else if (hit.collider.gameObject.tag == "exit")
                 {
-                    if (CutsceneManager.currentCutscene < 1 && inventory.transform.Find("HorrorDoll") == null && inventory.transform.Find("ExitKey") == null)
+                    if (CutsceneManager.currentCutscene < 1 && inventory.transform.Find("Horror Doll") == null && inventory.transform.Find("Exit Key") == null)
                     {
                         CutsceneManager.currentCutscene++;
                         if (CutsceneManager.currentCutscene == 1)
@@ -360,7 +365,7 @@ public class PlayerInteraction : MonoBehaviour
                         //dialog of dialWhenSeeGhost
                         gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialWhenSeeGhost").gameObject.SetActive(true);
                     }
-                    else if (inventory.transform.Find("HorrorDoll") == null && inventory.transform.Find("ExitKey") == null)
+                    else if (inventory.transform.Find("Horror Doll") == null && inventory.transform.Find("Exit Key") == null)
                     {
                         //dialog of dialToOpenExit
                         gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialToOpenExit").gameObject.SetActive(true);
@@ -379,7 +384,7 @@ public class PlayerInteraction : MonoBehaviour
                 }else if (hit.collider.gameObject.name == "TriggerBurnEffect")
                 {
                     GameObject.Find("Decoration").gameObject.transform.GetChild(3).gameObject.transform.GetChild(1).gameObject.SetActive(true);
-                    Destroy(inventory.transform.Find("HorrorDoll").gameObject);
+                    Destroy(inventory.transform.Find("Horror Doll").gameObject);
                     GameIsOver = true;
                 }
             }
@@ -403,14 +408,14 @@ public class PlayerInteraction : MonoBehaviour
             item.transform.SetParent(inventory.transform);
             Debug.Log("Pick up!");
         
-            if (item.name == "ExitKey")
+            if (item.name == "Exit Key")
             {
                 AudioManager.Instance.PlaySFX("PickUpKey");
                 //dialog of dialGetExitKey
                 gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialGetExitKey").gameObject.SetActive(true);
             }
 
-            if (item.name == "HorrorDoll")
+            if (item.name == "Horror Doll")
             {
                 AudioManager.Instance.PlaySFX("PickUpDoll");
                 //dialog of dialGetDoll
@@ -418,7 +423,7 @@ public class PlayerInteraction : MonoBehaviour
                 AIController.patrolPhase = 4;
             }
 
-            if (item.name == "MaleToiletKey")
+            if (item.name == "Male Toilet Key")
             {
                 AudioManager.Instance.PlaySFX("PickUpKey");
                 //dialog of dialGetDoll
@@ -445,17 +450,7 @@ public class PlayerInteraction : MonoBehaviour
             door.GetComponent<Animator>().SetBool("Trigger", true);
         }
     }
-    
-    // Door Close
-    void ShutDoor(GameObject door)
-    {
-        // AudioSource audio = GetComponent<AudioSource>();
-        // audio.clip = shutDoorSound[];
-        // audio.Play();
-        doorIsOpen = false;
-        door.GetComponent<Animator>().SetBool("Trigger", false);
-    }
-    
+
     // Close and Open for Two Door
     void OpenCloseMultiDoor(int startIndex, int endIndex)
     {
@@ -486,6 +481,11 @@ public class PlayerInteraction : MonoBehaviour
         gameObject.transform.GetChild(2).GetChild(0).Find("dialDoorLock").gameObject.SetActive(true);
     }
     
+    void doorUnlockHintText()
+    {
+        gameObject.transform.GetChild(2).GetChild(0).Find("dialDoorUnlock").gameObject.SetActive(true);
+    }
+    
     IEnumerator playerTeleportToLab()
     {
         Debug.Log("Entering the vein");
@@ -500,7 +500,6 @@ public class PlayerInteraction : MonoBehaviour
         surpriseEventTrigger();
         
         currentDoor = GameObject.Find("LockedLabDoor");
-        Debug.Log(currentDoor);
         currentDoor.SetActive(false);
         effect = GameObject.Find("DarkenScreen");
         effect.GetComponent<Animator>().SetBool("Trigger", false);
@@ -564,5 +563,30 @@ public class PlayerInteraction : MonoBehaviour
         Debug.Log("Credit Scene!!!!!!");
     }
 
+    void itemSwitching()
+    {
+
+        if (itemIndex >= 0 && itemIndex < gameObject.transform.GetChild(3).transform.childCount)
+        {
+            gameObject.transform.GetChild(4).transform.GetChild(0).transform.GetChild(1).gameObject.GetComponent<Text>().text = gameObject.transform.GetChild(3).transform.GetChild(itemIndex).gameObject.name;
+            
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                itemIndex++;
+
+            }
+        }
+        else
+        {
+            itemIndex = 0;
+        }
+
+    }
+
+    void batteryCount()
+    {
+        gameObject.transform.GetChild(5).transform.GetChild(0).transform.GetChild(0).transform.GetChild(2).gameObject.GetComponent<Text>().text = Inventory.numBattery.ToString();
+    }
+    
 
 }

@@ -40,6 +40,7 @@ public class PasswordButtonOnClick : MonoBehaviour
                 password = "";
                 password = "UNLOCKED";
                 GameObject.Find("PasswordLock").SetActive(false);
+                GameObject.Find("PasswordLock2").SetActive(false);
                 GameObject.Find("DigitalPasswordLockPanel").SetActive(false);
                 GameObject.Find("DigitalPasswordLockUI").GetComponent<Canvas>().sortingOrder = 0;
                 Cursor.lockState = CursorLockMode.Locked;
