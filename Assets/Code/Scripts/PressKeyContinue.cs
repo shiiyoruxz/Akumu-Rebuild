@@ -22,8 +22,6 @@ public class PressKeyContinue : MonoBehaviour
     public GameObject panelUIObject;
 
     public static bool returnMainMenu = false;
-    private string _backgroundMusic = "MenuBGM";
-    private string _sceneName = "MainMenuScene";
 
     // Start is called before the first frame update
     void Start()

@@ -31,6 +31,7 @@ public class EscPauseGame : MonoBehaviour
             Debug.Log("Esc Pressed");
             gameIsPaused = !gameIsPaused;
             Debug.Log(gameIsPaused);
+            AudioManager.Instance.PauseMusic();
             PauseGame();
         }
 
@@ -55,6 +56,7 @@ public class EscPauseGame : MonoBehaviour
         }
         else
         {
+            AudioManager.Instance.ResumeMusic();
             ResumeGame();
         }
     }
@@ -110,6 +112,8 @@ public class EscPauseGame : MonoBehaviour
     
     public void OptionButtonCliked()
     {
+        AudioManager.Instance.ResumeMusic();
+        
         ESCPanelList[0].transform.parent.gameObject.GetComponent<Canvas>().sortingOrder = 0;
         //ESCCanvasList[0].SetActive(false);
         ESCPanelList[0].GetComponent<CanvasGroup>().alpha = 0;
@@ -123,6 +127,8 @@ public class EscPauseGame : MonoBehaviour
 
     public void BackButtonClicked()
     {
+        AudioManager.Instance.PauseMusic();
+        
         ESCPanelList[1].transform.parent.gameObject.GetComponent<Canvas>().sortingOrder = 0;
         //ESCCanvasList[1].SetActive(false);
         ESCPanelList[1].GetComponent<CanvasGroup>().alpha = 0;
@@ -136,6 +142,9 @@ public class EscPauseGame : MonoBehaviour
 
     public void ReturnMenuButtonClicked()
     {
+        MainMenuManager.returnMainMenu = true;
+        AudioManager.Instance.ResumeMusic();
+        
         Time.timeScale = 1.0f;
         _triggerLoading = true;
         FadeInBtn.showMenuBtn = true;
