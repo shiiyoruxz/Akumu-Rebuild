@@ -27,7 +27,7 @@ public class PlayerInteraction : MonoBehaviour
     public static bool digitalLockIsOpen = false;
     public static bool hintTextShow = false;
     private bool GameIsOver = false;
-    private bool doorIsOpen = false;
+    private bool doorIsOpen = true;
     private bool ghostBookIsOpen = false;
     private bool diaryIsOpen = false;
     private GameObject currentDoor;
@@ -282,6 +282,7 @@ public class PlayerInteraction : MonoBehaviour
                         if (inventory.transform.Find("1F Female Toilet Key") != null)
                         {
                             hit.collider.gameObject.SetActive(false);
+                            doorUnlockHintText();
                         }
                         else
                         {
@@ -295,6 +296,7 @@ public class PlayerInteraction : MonoBehaviour
                         if (inventory.transform.Find("LibraryKey") != null)
                         {
                             hit.collider.gameObject.SetActive(false);
+                            doorUnlockHintText();
                         }
                         else
                         {
@@ -305,6 +307,7 @@ public class PlayerInteraction : MonoBehaviour
                         if (inventory.transform.Find("MaleToiletKey") != null)
                         {
                             hit.collider.gameObject.SetActive(false);
+                            doorUnlockHintText();
                         }
                         else
                         {
@@ -434,17 +437,7 @@ public class PlayerInteraction : MonoBehaviour
             door.GetComponent<Animator>().SetBool("Trigger", true);
         }
     }
-    
-    // Door Close
-    void ShutDoor(GameObject door)
-    {
-        // AudioSource audio = GetComponent<AudioSource>();
-        // audio.clip = shutDoorSound[];
-        // audio.Play();
-        doorIsOpen = false;
-        door.GetComponent<Animator>().SetBool("Trigger", false);
-    }
-    
+
     // Close and Open for Two Door
     void OpenCloseMultiDoor(int startIndex, int endIndex)
     {
@@ -464,6 +457,11 @@ public class PlayerInteraction : MonoBehaviour
     void DoorLockedDialogue()
     {
         gameObject.transform.GetChild(2).GetChild(0).Find("dialDoorLock").gameObject.SetActive(true);
+    }
+    
+    void doorUnlockHintText()
+    {
+        gameObject.transform.GetChild(2).GetChild(0).Find("dialDoorUnlock").gameObject.SetActive(true);
     }
     
     IEnumerator playerTeleportToLab()
@@ -544,5 +542,6 @@ public class PlayerInteraction : MonoBehaviour
         Debug.Log("Credit Scene!!!!!!");
     }
 
+    
 
 }
