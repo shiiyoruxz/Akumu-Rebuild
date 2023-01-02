@@ -13,7 +13,6 @@ public class GameOver : MonoBehaviour
     {
         Time.timeScale = 1;
         Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.Locked; // locks the cursor to the center of the screen
         Cursor.lockState = CursorLockMode.None; // unlocks the cursor
     }
 
@@ -28,7 +27,7 @@ public class GameOver : MonoBehaviour
             .GetComponent<AIController>().patrolPoints[AIController.patrolPhase].transform
             .GetChild(AIController.currentPointIndex).transform.position;
         playerWantRetry = true;
-        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     public void playerReturnMainMenu()
