@@ -156,13 +156,13 @@ public class PlayerInteraction : MonoBehaviour
                             //dialog of read ghost book
                             gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialDiary").gameObject.SetActive(true);
                             firstPersonController.GetComponent<FirstPersonController>().enabled = true;
-                            gameObject.transform.parent.transform.GetChild(0).transform.GetChild(6).gameObject.SetActive(false);
+                            gameObject.transform.parent.transform.GetChild(0).transform.GetChild(9).gameObject.SetActive(false);
                             diaryIsOpen = false;
                         }
                         else
                         {
                             firstPersonController.GetComponent<FirstPersonController>().enabled = false;
-                            gameObject.transform.parent.transform.GetChild(0).transform.GetChild(6).gameObject.SetActive(true);
+                            gameObject.transform.parent.transform.GetChild(0).transform.GetChild(9).gameObject.SetActive(true);
                             diaryIsOpen = true;
                         }
                     }
