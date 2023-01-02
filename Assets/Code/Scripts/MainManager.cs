@@ -29,17 +29,18 @@ public class MainManager : MonoBehaviour
     {
         Scene currentScene = SceneManager.GetActiveScene();
         sceneName = currentScene.name;
-        StartCoroutine(checkScene());
+        // StartCoroutine(checkScene());
         
         
     }
 
     private void Update()
     {
-        if (CutsceneManager.currentCutscene == 1)
-        {
-            gameObject.transform.GetChild(4).transform.gameObject.SetActive(true);
-        }
+        // if (CutsceneManager.currentCutscene == 1)
+        // {
+        //     //Ghost appear
+        //     gameObject.transform.GetChild(2).transform.gameObject.SetActive(true);
+        // }
     }
 
     IEnumerator checkScene()
@@ -47,19 +48,23 @@ public class MainManager : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
         Scene currentScene = SceneManager.GetActiveScene();
 
-        if (currentScene.name != sceneName)
-        {
-            gameObject.transform.GetChild(0).gameObject.SetActive(false);
-            gameObject.transform.GetChild(2).gameObject.SetActive(false);
-            gameObject.transform.GetChild(6).gameObject.SetActive(false);
-
-        }
-        else
-        {
-            gameObject.transform.GetChild(0).gameObject.SetActive(true);
-            gameObject.transform.GetChild(2).gameObject.SetActive(true);
-            gameObject.transform.GetChild(6).gameObject.SetActive(true);
-        }
+        // if (currentScene.name != sceneName)
+        // {
+        //     Debug.Log("Not the same scene");
+        //     Debug.Log(gameObject.transform.GetChild(0).gameObject.name);
+        //     gameObject.transform.GetChild(0).gameObject.SetActive(false);
+        //     gameObject.transform.GetChild(1).gameObject.SetActive(false);
+        //     gameObject.transform.GetChild(6).gameObject.SetActive(false);
+        //
+        // }
+        // else
+        // {
+        //     Debug.Log("Same scene");
+        //     Debug.Log(gameObject.transform.GetChild(0).gameObject.name);
+        //     gameObject.transform.GetChild(0).gameObject.SetActive(true);
+        //     gameObject.transform.GetChild(1).gameObject.SetActive(true);
+        //     gameObject.transform.GetChild(6).gameObject.SetActive(true);
+        // }
         StartCoroutine(checkScene());
     }
     

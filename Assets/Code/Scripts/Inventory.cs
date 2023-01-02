@@ -23,23 +23,8 @@ public class Inventory : MonoBehaviour
     {
         if (gameObject.transform.childCount > inventoryCount)
         {
-            Debug.Log("added");
             inventoryCount = gameObject.transform.childCount;
         }
-        updateInventory();
     }
 
-    void updateInventory()
-    {
-        if (gameObject.transform.Find("Battery"))
-        {
-            torchLight.SetActive(true);
-            
-        }
-        else
-        {
-            torchLight.SetActive(false);
-        }
-    }
-    
 }
