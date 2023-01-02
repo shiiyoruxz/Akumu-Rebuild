@@ -42,7 +42,16 @@ public class FlashlightManager : MonoBehaviour
 
         if (torchlight.activeSelf == true && Input.GetKeyDown(KeyCode.F))
         {
-            torchlight.GetComponent<Light>().enabled = !torchlight.GetComponent<Light>().enabled;
+            if (torchlight.GetComponent<Light>().enabled == true)
+            {
+                 AudioManager.Instance.PlaySFX("FlashlightOff");
+                 torchlight.GetComponent<Light>().enabled = false;
+            }
+            else
+            {
+                 AudioManager.Instance.PlaySFX("FlashlightOn");
+                 torchlight.GetComponent<Light>().enabled = true;
+            }
         }
 
         if (torchlight.activeSelf == true && Input.GetKeyDown(KeyCode.R))

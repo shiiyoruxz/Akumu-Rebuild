@@ -26,7 +26,7 @@ public class EscPauseGame : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape) && PlayerInteraction.digitalLockIsOpen == false)
+        if (Input.GetKeyDown(KeyCode.Escape) && PlayerInteraction.digitalLockIsOpen == false && PlayerInteraction.diaryIsOpen == false && PlayerInteraction.ghostBookIsOpen == false)
         {
             Debug.Log("Esc Pressed");
             gameIsPaused = !gameIsPaused;
@@ -56,13 +56,13 @@ public class EscPauseGame : MonoBehaviour
         }
         else
         {
-            AudioManager.Instance.ResumeMusic();
             ResumeGame();
         }
     }
 
     void ResumeGame()
     {
+        AudioManager.Instance.ResumeMusic();
         Time.timeScale = 1.0f;
         ESCPanelList[0].transform.parent.gameObject.GetComponent<Canvas>().sortingOrder = 0;
         ESCPanelList[0].GetComponentInParent<Volume>().enabled = false;
@@ -86,6 +86,7 @@ public class EscPauseGame : MonoBehaviour
         ESCPanelList[2].transform.parent.gameObject.GetComponent<Canvas>().sortingOrder = 0;
         ESCPanelList[2].GetComponent<CanvasGroup>().alpha = 0;
         MainMenuManager.DestroyOnReturnMenu();
+        gameIsPaused = false;
         //ESCCanvasList[2].SetActive(false);
         //ESCCanvasList[0].SetActive(true);
         //AudioManager.Instance.StopMusic();
@@ -143,6 +144,8 @@ public class EscPauseGame : MonoBehaviour
     public void ReturnMenuButtonClicked()
     {
         MainMenuManager.returnMainMenu = true;
+        FlashlightManager.firstBattery = true;
+        Inventory.numBattery = 0;
         AudioManager.Instance.ResumeMusic();
         
         Time.timeScale = 1.0f;

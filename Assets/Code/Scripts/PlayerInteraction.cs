@@ -28,8 +28,8 @@ public class PlayerInteraction : MonoBehaviour
     public static bool hintTextShow = false;
     private bool GameIsOver = false;
     private bool doorIsOpen = true;
-    private bool ghostBookIsOpen = false;
-    private bool diaryIsOpen = false;
+    public static bool ghostBookIsOpen = false;
+    public static bool diaryIsOpen = false;
     private GameObject currentDoor;
     private GameObject currentObject;
     private GameObject playerCheckPoint;
@@ -139,6 +139,7 @@ public class PlayerInteraction : MonoBehaviour
                         }
                         else
                         {
+                            AudioManager.Instance.PlaySFX("PickUpNotes");
                             firstPersonController.GetComponent<FirstPersonController>().enabled = false;
                             gameObject.transform.parent.transform.GetChild(0).transform.GetChild(6).gameObject.SetActive(true);
                             ghostBookIsOpen = true;
@@ -158,12 +159,35 @@ public class PlayerInteraction : MonoBehaviour
                         }
                         else
                         {
+                            AudioManager.Instance.PlaySFX("PickUpNotes");
                             firstPersonController.GetComponent<FirstPersonController>().enabled = false;
                             gameObject.transform.parent.transform.GetChild(0).transform.GetChild(9).gameObject.SetActive(true);
                             diaryIsOpen = true;
                         }
                     }
-
+                }
+                
+                if (diaryIsOpen)
+                {
+                    if (Input.GetKeyDown(KeyCode.Escape))
+                    {
+                        Debug.Log("Hahah helo noob yz");
+                        gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialDiary").gameObject.SetActive(true);
+                        firstPersonController.GetComponent<FirstPersonController>().enabled = true;
+                        gameObject.transform.parent.transform.GetChild(0).transform.GetChild(9).gameObject.SetActive(false);
+                        diaryIsOpen = false;
+                    }
+                }
+                
+                if (ghostBookIsOpen)
+                {
+                    if (Input.GetKeyDown(KeyCode.Escape))
+                    {
+                        gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialGhostBook").gameObject.SetActive(true);
+                        firstPersonController.GetComponent<FirstPersonController>().enabled = true;
+                        gameObject.transform.parent.transform.GetChild(0).transform.GetChild(6).gameObject.SetActive(false);
+                        ghostBookIsOpen = false;
+                    }
                 }
             }
             if (hit.collider.tag == "ToiletVent")
@@ -208,11 +232,15 @@ public class PlayerInteraction : MonoBehaviour
                         firstPersonController.GetComponent<FirstPersonController>().enabled = true;
                         digitalLockIsOpen = false;
                     }
-                        
                 }
                 
             }
-            
+            if (hit.collider.gameObject.name == "TriggerBurnEffect")
+            {
+                GameObject.Find("Decoration").gameObject.transform.GetChild(3).gameObject.transform.GetChild(1).gameObject.SetActive(true);
+                Destroy(inventory.transform.Find("HorrorDoll").gameObject);
+                GameIsOver = true;
+            }
         }
         else
         {
@@ -236,7 +264,8 @@ public class PlayerInteraction : MonoBehaviour
                 {
                     if (hit.collider.gameObject.tag == doorTag)
                     {
-                        doorInteraction(hit.collider.gameObject);
+                        currentDoor = hit.collider.gameObject;
+                        OneDoorInteraction(currentDoor);
                     }
                 }
                 
@@ -292,7 +321,6 @@ public class PlayerInteraction : MonoBehaviour
                         }
                         else
                         {
-                            AudioManager.Instance.PlaySFX("KeyJiggle");
                             DoorLockedDialogue();
                         }
                     }else if (hit.collider.gameObject.name == "PasswordLock")
@@ -302,6 +330,7 @@ public class PlayerInteraction : MonoBehaviour
                     {
                         if (inventory.transform.Find("Library Key") != null)
                         {
+                            AudioManager.Instance.PlaySFX("PickUpKey");
                             hit.collider.gameObject.SetActive(false);
                             doorUnlockHintText();
                         }
@@ -436,7 +465,7 @@ public class PlayerInteraction : MonoBehaviour
     }
 
     // Door Open
-    void doorInteraction(GameObject door)
+    void OneDoorInteraction(GameObject door)
     {
         // AudioSource audio = GetComponent<AudioSource>();
         // audio.clip = openDoorSound[];
@@ -447,8 +476,18 @@ public class PlayerInteraction : MonoBehaviour
         }
         else
         {
-            door.GetComponent<Animator>().SetBool("Trigger", true);
+            if (door.GetComponent<Animator>().GetBool("Trigger"))
+            {
+                AudioManager.Instance.PlaySFX("DoorClosed_02");
+                door.GetComponent<Animator>().SetBool("Trigger", false);
+            }
+            else
+            {
+                AudioManager.Instance.PlaySFX("DoorOpen_02");
+                door.GetComponent<Animator>().SetBool("Trigger", true);
+            }
         }
+        
     }
 
     // Close and Open for Two Door
@@ -459,11 +498,11 @@ public class PlayerInteraction : MonoBehaviour
 
         if (doorIsOpen == true && ((startIndex == 0 && endIndex == 2) || (startIndex == 2 && endIndex == 4)))
         {
-            AudioManager.Instance.PlaySFX("DoorOpen_02");
+            AudioManager.Instance.PlaySFX("DoorOpen_01");
         }
         else if (doorIsOpen == false && ((startIndex == 0 && endIndex == 2) || (startIndex == 2 && endIndex == 4)))
         {
-            AudioManager.Instance.PlaySFX("DoorClose_02");
+            AudioManager.Instance.PlaySFX("DoorClosed_01");
         }
         
         // Open or close doors
@@ -478,6 +517,7 @@ public class PlayerInteraction : MonoBehaviour
 
     void DoorLockedDialogue()
     {
+        AudioManager.Instance.PlaySFX("KeyJiggle");
         gameObject.transform.GetChild(2).GetChild(0).Find("dialDoorLock").gameObject.SetActive(true);
     }
     
@@ -488,12 +528,12 @@ public class PlayerInteraction : MonoBehaviour
     
     IEnumerator playerTeleportToLab()
     {
-        Debug.Log("Entering the vein");
         // Wait for 3 seconds
         yield return new WaitForSeconds(2.5f);
         
         // Do something after 3 seconds
         // Change player checkpoint
+        AudioManager.Instance.PlaySFX("VentOpenSound");
         gameObject.transform.localPosition = new Vector3(12.10f, 0.547f, -23.089f);
         gameObject.transform.localRotation = Quaternion.Euler(0f, -23.602f, 0f);
         //Bucket Area Active
@@ -509,11 +549,13 @@ public class PlayerInteraction : MonoBehaviour
     void ToiletEventTrigger(GameObject currentObject)
     {
         // Vent animate
+        AudioManager.Instance.PlaySFX("VentOpenSound");
         currentObject.transform.localPosition = new Vector3(2.851f, 0.06018281f, 10.52258f);
         currentObject.transform.localRotation = Quaternion.Euler(-90f, 112.884f, 0f);
        
         effect = GameObject.Find("DarkenScreen");
         effect.GetComponent<Animator>().SetBool("Trigger", true);
+        AudioManager.Instance.PlaySFX("InVentCrawling_02");
         //When the player open the female toilet
         AIController.patrolPhase = 2;
         StartCoroutine(playerTeleportToLab());
@@ -530,6 +572,7 @@ public class PlayerInteraction : MonoBehaviour
 
     void HideLocker()
     {
+        AudioManager.Instance.PlaySFX("LockerDoorOpen");
         gameObject.transform.Translate(0, 1.0f, 0);
         gameObject.transform.rotation = Quaternion.Euler(0.0f, 0.0f ,0.0f);
         gameObject.GetComponent<Rigidbody>().useGravity = false;
@@ -540,6 +583,7 @@ public class PlayerInteraction : MonoBehaviour
     
     void UnhideLocker()
     {
+        AudioManager.Instance.PlaySFX("LockerDoorClose");
         gameObject.transform.position = temp_position.position;
         gameObject.transform.Translate(0, -1.0f, 0.5f);
         gameObject.transform.rotation = Quaternion.Euler(0.0f, 0.0f ,0.0f);
@@ -552,6 +596,7 @@ public class PlayerInteraction : MonoBehaviour
     //Surprise event
     void surpriseEventTrigger()
     {
+        AudioManager.Instance.PlaySFX("MetalObjectDrop");
         //Bucket Area Active
         gameObject.transform.parent.GetChild(0).gameObject.transform.GetChild(10).transform
             .Find("SurpriseBucket").transform.GetChild(0).gameObject.SetActive(true);

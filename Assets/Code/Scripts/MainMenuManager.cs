@@ -131,7 +131,7 @@ public class MainMenuManager : MonoBehaviour
         loadingScreen.SetActive(true);
         _triggerLoadingScreen = true;
         //FadeInBtn.showMenuBtn = true;
-        StartCoroutine(SwitchScene(20.0f));
+        StartCoroutine(SwitchScene(1.0f));
     }
 
     public void InstructionButtonClicked()
