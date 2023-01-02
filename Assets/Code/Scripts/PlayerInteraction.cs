@@ -480,7 +480,6 @@ public class PlayerInteraction : MonoBehaviour
         surpriseEventTrigger();
         
         currentDoor = GameObject.Find("LockedLabDoor");
-        Debug.Log(currentDoor);
         currentDoor.SetActive(false);
         effect = GameObject.Find("DarkenScreen");
         effect.GetComponent<Animator>().SetBool("Trigger", false);
