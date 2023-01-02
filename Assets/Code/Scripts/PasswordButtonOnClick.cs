@@ -25,7 +25,7 @@ public class PasswordButtonOnClick : MonoBehaviour
 
     public void EnterPassword(string digit)
     {
-        Debug.Log("Pressed");
+        AudioManager.Instance.PlaySFX("PasswordPressed");
         password += digit;
         checkPassword();
     }
@@ -36,6 +36,7 @@ public class PasswordButtonOnClick : MonoBehaviour
         {
             if (password == correctPassword)
             {
+                AudioManager.Instance.PlaySFX("PasswordCorrect");
                 password = "";
                 password = "UNLOCKED";
                 GameObject.Find("PasswordLock").SetActive(false);
@@ -46,6 +47,7 @@ public class PasswordButtonOnClick : MonoBehaviour
             }
             else
             {
+                AudioManager.Instance.PlaySFX("PasswordIncorrect");
                 password = "";
             }
         }

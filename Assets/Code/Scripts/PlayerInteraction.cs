@@ -108,11 +108,7 @@ public class PlayerInteraction : MonoBehaviour
                 //Press E to interact text
                 gameObject.transform.GetChild(0).transform.GetChild(0).transform.GetChild(2).transform.GetChild(0).gameObject.SetActive(true);
             }
-            else
-            {
-                gameObject.transform.GetChild(0).transform.GetChild(0).transform.GetChild(2).transform.GetChild(0).gameObject.SetActive(false);
-            }
-
+            
 
             // Check if the hit object has the "PickUp" tag
             if (hit.collider.tag == "Collectable")
@@ -217,6 +213,10 @@ public class PlayerInteraction : MonoBehaviour
             }
             
         }
+        else
+        {
+            gameObject.transform.GetChild(0).transform.GetChild(0).transform.GetChild(2).transform.GetChild(0).gameObject.SetActive(false);
+        }
     }
 
     void DoorInteraction()
@@ -269,6 +269,7 @@ public class PlayerInteraction : MonoBehaviour
                     currentDoor = hit.collider.gameObject;
                     startIndex = 4;
                     endIndex = 6;
+                    AudioManager.Instance.PlaySFX("SlideDoor");
                     OpenCloseMultiDoor(startIndex, endIndex);
                 }
                 else if (hit.collider.gameObject.tag == "GymSD2")
@@ -276,6 +277,7 @@ public class PlayerInteraction : MonoBehaviour
                     currentDoor = hit.collider.gameObject;
                     startIndex = 6;
                     endIndex = 8;
+                    AudioManager.Instance.PlaySFX("SlideDoor");
                     OpenCloseMultiDoor(startIndex, endIndex);
                 }
                 else if (hit.collider.gameObject.tag == "GymSD3")
@@ -283,6 +285,7 @@ public class PlayerInteraction : MonoBehaviour
                     currentDoor = hit.collider.gameObject;
                     startIndex = 8;
                     endIndex = 10;
+                    AudioManager.Instance.PlaySFX("SlideDoor");
                     OpenCloseMultiDoor(startIndex, endIndex);
                 }
                 else if (hit.collider.gameObject.tag == "LockedDoor")
@@ -291,10 +294,12 @@ public class PlayerInteraction : MonoBehaviour
                     {
                         if (inventory.transform.Find("1F Female Toilet Key") != null)
                         {
+                            AudioManager.Instance.PlaySFX("KeyUnlockedDoor");
                             hit.collider.gameObject.SetActive(false);
                         }
                         else
                         {
+                            AudioManager.Instance.PlaySFX("KeyJiggle");
                             DoorLockedDialogue();
                         }
                     }else if (hit.collider.gameObject.name == "PasswordLock")
@@ -343,6 +348,8 @@ public class PlayerInteraction : MonoBehaviour
                 }else if (hit.collider.gameObject.name == "ToiletSurpriseDoor")
                 {
                     gameObject.transform.parent.transform.GetChild(0).transform.GetChild(1).transform.GetChild(0).Find("blockvent").gameObject.SetActive(false);
+                    AudioManager.Instance.PlaySFX("DeadBodyFall");
+                    AudioManager.Instance.PlaySFX("GirlScream_02");
                     // Surprise Dead body
                     //dialog of dialGoingVent
                     gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialGoingVent").gameObject.SetActive(true);
@@ -395,6 +402,7 @@ public class PlayerInteraction : MonoBehaviour
     {
         if (item.name == "battery")
         {
+            AudioManager.Instance.PlaySFX("PickUpItems");
             Inventory.numBattery++;
             Destroy(item);
         }
@@ -407,12 +415,14 @@ public class PlayerInteraction : MonoBehaviour
         
             if (item.name == "ExitKey")
             {
+                AudioManager.Instance.PlaySFX("PickUpKey");
                 //dialog of dialGetExitKey
                 gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialGetExitKey").gameObject.SetActive(true);
             }
 
             if (item.name == "HorrorDoll")
             {
+                AudioManager.Instance.PlaySFX("PickUpDoll");
                 //dialog of dialGetDoll
                 gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialGetDoll").gameObject.SetActive(true);
                 AIController.patrolPhase = 4;
@@ -420,6 +430,7 @@ public class PlayerInteraction : MonoBehaviour
 
             if (item.name == "MaleToiletKey")
             {
+                AudioManager.Instance.PlaySFX("PickUpKey");
                 //dialog of dialGetDoll
                 gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialMaleToilet").gameObject.SetActive(true);
             }
@@ -455,6 +466,15 @@ public class PlayerInteraction : MonoBehaviour
         // Toggle doorIsOpen flag
         doorIsOpen = !doorIsOpen;
 
+        if (doorIsOpen == true && ((startIndex == 0 && endIndex == 2) || (startIndex == 2 && endIndex == 4)))
+        {
+            AudioManager.Instance.PlaySFX("DoorOpen_02");
+        }
+        else if (doorIsOpen == false && ((startIndex == 0 && endIndex == 2) || (startIndex == 2 && endIndex == 4)))
+        {
+            AudioManager.Instance.PlaySFX("DoorClose_02");
+        }
+        
         // Open or close doors
         for (int i = startIndex; i < endIndex; i++)
         {
