@@ -12,8 +12,9 @@ public class MainMenuManager : MonoBehaviour
     private bool _isQuit = false;
     private bool _triggerLoadingScreen = false;
     private float _timer = 0;
-    
+    private string _sceneName = "MainMenuScene";
     private string _scenelToLoad;
+    private string _backgroundMusic = "MenuBGM";
 
     public static string[] toolTipsText = { "Press [F] to turn the flashlight ON/OFF", 
                                         "Press [ESC] to open in-game menu or pause the game",
@@ -32,16 +33,23 @@ public class MainMenuManager : MonoBehaviour
     public List<GameObject> canvasSelectionList = new List<GameObject>();
 
     public static bool triggerSelectedSelection = false;
+    public static bool returnMainMenu = true;
 
     // Start is called before the first frame update
     void Start()
     {
-
+        AudioManager.Instance.PlayMusic("MenuBGM");
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (SceneManager.GetActiveScene().name == _sceneName && returnMainMenu)
+        {
+            returnMainMenu = false;
+            AudioManager.Instance.PlayMusic(_backgroundMusic);
+        }
+        
         if (_triggerLoadingScreen) 
         {
             loadingScreen.transform.GetChild(0).GetChild(1).gameObject.transform.Rotate(0.0f, 0.0f, 1.0f);
@@ -91,7 +99,8 @@ public class MainMenuManager : MonoBehaviour
         else
         {
             AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(_scenelToLoad);
-            AudioManager.Instance.StopMusic();
+            //AudioManager.Instance.StopMusic();
+            CutsceneManager.playInGameBGM = true;
             // while (!asyncLoad.isDone)
             // {
             //     yield return null;

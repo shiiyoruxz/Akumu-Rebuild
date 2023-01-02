@@ -104,7 +104,7 @@ public class AIController : MonoBehaviour
 
     private void Patrolling()
     {
-        agent.speed = 3.0f;
+        agent.speed = 2.2f;
         if (currentPointIndex >= 0 && currentPointIndex < patrolPoints[patrolPhase].transform.childCount)
         {
             if (Vector3.Distance(transform.position, destination) > 1.0f)

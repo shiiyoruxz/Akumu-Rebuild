@@ -17,7 +17,4 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Level/Scenes/Shrine.unity
     guid: fdd0013f32db0cf4bb29e83b1e76b78a
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
   m_configObjects: {}
