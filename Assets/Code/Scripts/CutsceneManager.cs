@@ -30,6 +30,7 @@ public class CutsceneManager : MonoBehaviour
 
         if (currentCutscene == 1)
         {
+            Debug.Log(GameObject.Find("NoDestroyObject").gameObject.transform.GetChild(2).gameObject.name);
             GameObject.Find("NoDestroyObject").gameObject.transform.GetChild(0).gameObject.SetActive(false);
             GameObject.Find("NoDestroyObject").gameObject.transform.GetChild(1).gameObject.SetActive(false);
             GameObject.Find("NoDestroyObject").gameObject.transform.GetChild(2).gameObject.SetActive(false);

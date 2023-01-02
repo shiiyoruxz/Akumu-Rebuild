@@ -17,7 +17,7 @@ public class AIController : MonoBehaviour
     public Transform[] patrolPoints;
     private float waitTime = 2.0f;
     private float chaseTime;
-    private int currentPointIndex = 0;
+    public static int currentPointIndex = 0;
 
     private bool once;
     private string targetTag = "Player";
@@ -166,6 +166,7 @@ public class AIController : MonoBehaviour
     {
         if (col.transform.CompareTag(targetTag))
         {
+            GameOver.playerIsDead = true;
             triggerJumpScare();
             StartCoroutine(triggerGameOver());
         }

@@ -516,6 +516,7 @@ public class PlayerInteraction : MonoBehaviour
     void HideLocker()
     {
         gameObject.transform.Translate(0, 1.0f, 0);
+        gameObject.transform.rotation = Quaternion.Euler(0.0f, 0.0f ,0.0f);
         gameObject.GetComponent<Rigidbody>().useGravity = false;
         gameObject.GetComponent<Rigidbody>().isKinematic = true;
         gameObject.GetComponent<FirstPersonController>().playerCanMove = false;
@@ -526,6 +527,7 @@ public class PlayerInteraction : MonoBehaviour
     {
         gameObject.transform.position = temp_position.position;
         gameObject.transform.Translate(0, -1.0f, 0.5f);
+        gameObject.transform.rotation = Quaternion.Euler(0.0f, 0.0f ,0.0f);
         gameObject.GetComponent<Rigidbody>().useGravity = true;
         gameObject.GetComponent<Rigidbody>().isKinematic = false;
         gameObject.GetComponent<FirstPersonController>().playerCanMove = true;
@@ -546,5 +548,5 @@ public class PlayerInteraction : MonoBehaviour
         Debug.Log("Credit Scene!!!!!!");
     }
 
- 
+
 }
