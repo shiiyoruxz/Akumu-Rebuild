@@ -69,7 +69,7 @@ public class PlayerInteraction : MonoBehaviour
 
         if (GameIsOver)
         {
-            gameCompleted();
+            StartCoroutine(gameCompleted());
         }
         
         //Check num of battery && show reload text
@@ -171,7 +171,7 @@ public class PlayerInteraction : MonoBehaviour
                 {
                     if (Input.GetKeyDown(KeyCode.Escape))
                     {
-                        Debug.Log("Hahah helo noob yz");
+                        // Debug.Log("Hahah helo noob yz");
                         gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialDiary").gameObject.SetActive(true);
                         firstPersonController.GetComponent<FirstPersonController>().enabled = true;
                         gameObject.transform.parent.transform.GetChild(0).transform.GetChild(9).gameObject.SetActive(false);
@@ -237,9 +237,12 @@ public class PlayerInteraction : MonoBehaviour
             }
             if (hit.collider.gameObject.name == "TriggerBurnEffect")
             {
-                GameObject.Find("Decoration").gameObject.transform.GetChild(3).gameObject.transform.GetChild(1).gameObject.SetActive(true);
-                Destroy(inventory.transform.Find("HorrorDoll").gameObject);
-                GameIsOver = true;
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    GameObject.Find("Decoration").gameObject.transform.GetChild(3).gameObject.transform.GetChild(1).gameObject.SetActive(true);
+                    Destroy(inventory.transform.Find("Horror Doll").gameObject);
+                    GameIsOver = true;
+                }
             }
         }
         else
@@ -405,17 +408,28 @@ public class PlayerInteraction : MonoBehaviour
                         {
                             if (gameObject.transform.parent.GetChild(n).gameObject.name != gameObject.name)
                             {
+                                if (gameObject.transform.parent.GetChild(n).gameObject.name ==
+                                    gameObject.transform.parent.GetChild(4).name)
+                                {
+                                    continue;
+                                }
                                 Destroy(gameObject.transform.parent.GetChild(n).gameObject);
                             }
                         }
                         SceneManager.LoadScene(3);
                     }
-                }else if (hit.collider.gameObject.name == "TriggerBurnEffect")
-                {
-                    GameObject.Find("Decoration").gameObject.transform.GetChild(3).gameObject.transform.GetChild(1).gameObject.SetActive(true);
-                    Destroy(inventory.transform.Find("Horror Doll").gameObject);
-                    GameIsOver = true;
                 }
+                /*
+                else if (hit.collider.gameObject.name == "TriggerBurnEffect")
+                {
+                    if (Input.GetKeyDown(KeyCode.E))
+                    {
+                        GameObject.Find("Decoration").gameObject.transform.GetChild(3).gameObject.transform.GetChild(1).gameObject.SetActive(true);
+                        Destroy(inventory.transform.Find("Horror Doll").gameObject);
+                        GameIsOver = true;
+                    }
+                }
+                */
             }
         }
 
@@ -435,7 +449,7 @@ public class PlayerInteraction : MonoBehaviour
             // Add the item to the player's inventory or perform some other action
             item.SetActive(false);
             item.transform.SetParent(inventory.transform);
-            Debug.Log("Pick up!");
+            // Debug.Log("Pick up!");
         
             if (item.name == "Exit Key")
             {
@@ -476,16 +490,56 @@ public class PlayerInteraction : MonoBehaviour
         }
         else
         {
-            if (door.GetComponent<Animator>().GetBool("Trigger"))
+            if (currentDoor.tag == "ClassroomDoor")
             {
-                AudioManager.Instance.PlaySFX("DoorClosed_02");
-                door.GetComponent<Animator>().SetBool("Trigger", false);
+                AudioManager.Instance.PlaySFX("SlideDoor");
+                if (door.GetComponent<Animator>().GetBool("Trigger"))
+                {
+                    door.GetComponent<Animator>().SetBool("Trigger", false);
+                }
+                else
+                {
+                    door.GetComponent<Animator>().SetBool("Trigger", true);
+                }
+            }
+            else if (currentDoor.tag == "JumpScareDoor")
+            {
+                AudioManager.Instance.PlaySFX("True");
+                if (door.GetComponent<Animator>().GetBool("Trigger"))
+                {
+                    door.GetComponent<Animator>().SetBool("Trigger", false);
+                }
+                else
+                {
+                    door.GetComponent<Animator>().SetBool("Trigger", true);
+                }
+            }
+            else if (currentDoor.tag == "MusicDoor")
+            {
+                AudioManager.Instance.PlaySFX("BirthdayBoi");
+                if (door.GetComponent<Animator>().GetBool("Trigger"))
+                {
+                    door.GetComponent<Animator>().SetBool("Trigger", false);
+                }
+                else
+                {
+                    door.GetComponent<Animator>().SetBool("Trigger", true);
+                }
             }
             else
             {
-                AudioManager.Instance.PlaySFX("DoorOpen_02");
-                door.GetComponent<Animator>().SetBool("Trigger", true);
+                if (door.GetComponent<Animator>().GetBool("Trigger"))
+                {
+                    AudioManager.Instance.PlaySFX("DoorClosed_02");
+                    door.GetComponent<Animator>().SetBool("Trigger", false);
+                }
+                else
+                {
+                    AudioManager.Instance.PlaySFX("DoorOpen_02");
+                    door.GetComponent<Animator>().SetBool("Trigger", true);
+                }
             }
+            
         }
         
     }
@@ -602,11 +656,17 @@ public class PlayerInteraction : MonoBehaviour
             .Find("SurpriseBucket").transform.GetChild(0).gameObject.SetActive(true);
     }
 
-    void gameCompleted()
+    IEnumerator gameCompleted()
     {
         //Load cutscene
-        Debug.Log("Credit Scene!!!!!!");
+        yield return new WaitForSeconds(4.0f);
+        CreditsManager.runOnce = true;
+        SceneManager.LoadScene("CreditScene");
+        Destroy(GameObject.Find("NoDestroyObject"));
+        // Debug.Log("Credit Scene!!!!!!");
     }
+    
+    
 
     void itemSwitching()
     {

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.TerrainTools;
 
@@ -13,6 +14,7 @@ public class FlashlightManager : MonoBehaviour
     
     public static bool firstBattery = true;
     private bool _flashlightToggle = false;
+    private bool _flashlightOnOff = false;
 
     // Start is called before the first frame update
     void Start()
@@ -25,6 +27,7 @@ public class FlashlightManager : MonoBehaviour
     {
         if (torchlight.activeSelf == false && firstBattery == true && Inventory.numBattery > 0)
         {
+            _flashlightOnOff = true;
             firstBattery = false;
             torchlight.SetActive(true);
         }
@@ -40,17 +43,19 @@ public class FlashlightManager : MonoBehaviour
             }
         }
 
-        if (torchlight.activeSelf == true && Input.GetKeyDown(KeyCode.F))
+        if (torchlight.activeSelf == true && Input.GetKeyDown(KeyCode.F) && EscPauseGame.gameIsPaused == false)
         {
-            if (torchlight.GetComponent<Light>().enabled == true)
+            if (_flashlightOnOff == true)
             {
                  AudioManager.Instance.PlaySFX("FlashlightOff");
                  torchlight.GetComponent<Light>().enabled = false;
+                 _flashlightOnOff = false;
             }
             else
             {
                  AudioManager.Instance.PlaySFX("FlashlightOn");
                  torchlight.GetComponent<Light>().enabled = true;
+                 _flashlightOnOff = true;
             }
         }
 

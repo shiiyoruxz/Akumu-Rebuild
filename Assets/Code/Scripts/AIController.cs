@@ -26,11 +26,16 @@ public class AIController : MonoBehaviour
     private bool inAttackRange;
     private float speed;
     public bool isPatrol;
-    public bool isChase;
+    public static bool isChase;
     public bool isAttack;
 
     public int previousPatrolPhase;
     public static int patrolPhase = 0;
+    
+    public static bool playerIsDead = false;
+    public static bool playerWantRetry = false;
+    private bool _playOnce = true;
+
     
     // Start is called before the first frame update
     void Start()
@@ -104,6 +109,7 @@ public class AIController : MonoBehaviour
 
     private void Patrolling()
     {
+        FieldOfView.playSpotted = false;
         agent.speed = 2.2f;
         if (currentPointIndex >= 0 && currentPointIndex < patrolPoints[patrolPhase].transform.childCount)
         {
@@ -133,7 +139,8 @@ public class AIController : MonoBehaviour
     
     private void Chasing()
     {
-        agent.speed = 3.8f;
+        // AudioManager.Instance.PlaySFX("Spotted");
+        agent.speed = 4.0f;
 
         if (Vector3.Distance(transform.position, AIView.playerRef.transform.position) > 1.0f)
         {
@@ -151,6 +158,14 @@ public class AIController : MonoBehaviour
             inAttackRange = false;
         }
 
+        StartCoroutine(chaseSpeedUp());
+
+    }
+
+    IEnumerator chaseSpeedUp()
+    {
+        yield return new WaitForSeconds(2.5f);
+        agent.speed = 4.7f;
     }
     
     // private void Attacking()
@@ -166,8 +181,13 @@ public class AIController : MonoBehaviour
     {
         if (col.transform.CompareTag(targetTag))
         {
-            GameOver.playerIsDead = true;
+            playerIsDead = true;
             triggerJumpScare();
+            if (jumpScare.activeSelf == true)
+            {
+                AudioManager.Instance.PlaySFX("JumpScare");
+                _playOnce = false;
+            }
             StartCoroutine(triggerGameOver());
         }
     }
@@ -181,14 +201,22 @@ public class AIController : MonoBehaviour
     void triggerJumpScare()
     {
         jumpScare.SetActive(true);
+        resetGhostPosition();
     }
 
     IEnumerator triggerGameOver()
     {
         yield return new WaitForSeconds(2.0f);
+        jumpScare.SetActive(false);
         gameOver.SetActive(true);
         Time.timeScale = 0;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None; // unlocks the cursor
     }
     
-
+    public void resetGhostPosition()
+    {
+        GameObject ghost = gameObject;
+        ghost.transform.position = ghost.GetComponent<AIController>().patrolPoints[AIController.patrolPhase].transform.GetChild(AIController.currentPointIndex).transform.position;
+    }
 }

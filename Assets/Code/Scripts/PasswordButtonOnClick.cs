@@ -39,6 +39,7 @@ public class PasswordButtonOnClick : MonoBehaviour
                 AudioManager.Instance.PlaySFX("PasswordCorrect");
                 password = "";
                 password = "UNLOCKED";
+                PlayerInteraction.digitalLockIsOpen = false;
                 GameObject.Find("PasswordLock").SetActive(false);
                 GameObject.Find("PasswordLock2").SetActive(false);
                 GameObject.Find("DigitalPasswordLockPanel").SetActive(false);

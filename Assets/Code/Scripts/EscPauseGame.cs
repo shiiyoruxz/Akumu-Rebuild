@@ -26,11 +26,11 @@ public class EscPauseGame : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape) && PlayerInteraction.digitalLockIsOpen == false && PlayerInteraction.diaryIsOpen == false && PlayerInteraction.ghostBookIsOpen == false)
+        if (Input.GetKeyDown(KeyCode.Escape) && PlayerInteraction.digitalLockIsOpen == false && PlayerInteraction.diaryIsOpen == false && PlayerInteraction.ghostBookIsOpen == false && AIController.playerIsDead == false)
         {
-            Debug.Log("Esc Pressed");
+            // Debug.Log("Esc Pressed");
             gameIsPaused = !gameIsPaused;
-            Debug.Log(gameIsPaused);
+            // Debug.Log(gameIsPaused);
             AudioManager.Instance.PauseMusic();
             PauseGame();
         }
@@ -106,7 +106,7 @@ public class EscPauseGame : MonoBehaviour
 
     public void ResumeButtonClicked()
     {
-        Debug.Log("Resume Pressed");
+        // Debug.Log("Resume Pressed");
         gameIsPaused = !gameIsPaused;
         ResumeGame();
     }
@@ -147,6 +147,7 @@ public class EscPauseGame : MonoBehaviour
         FlashlightManager.firstBattery = true;
         Inventory.numBattery = 0;
         AudioManager.Instance.ResumeMusic();
+        CutsceneManager.currentCutscene = 0;
         
         Time.timeScale = 1.0f;
         _triggerLoading = true;

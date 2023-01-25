@@ -33,12 +33,12 @@ namespace Codes.Scripts.SaveSystem
 
         void Update()
         {
-            if (GameOver.playerIsDead && GameOver.playerWantRetry)
+            if (AIController.playerIsDead && AIController.playerWantRetry)
             {
                 LoadPlayerData();
                 SceneManager.LoadScene(2);
-                GameOver.playerWantRetry = false;
-                GameOver.playerIsDead = false;
+                AIController.playerWantRetry = false;
+                AIController.playerIsDead = false;
             }
             StartCoroutine(trackCheckPoint());
         }

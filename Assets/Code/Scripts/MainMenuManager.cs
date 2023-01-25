@@ -28,8 +28,7 @@ public class MainMenuManager : MonoBehaviour
     public AudioClip buttonClickedSound;
     public GameObject loadingScreen;
     public GameObject mainMenuCanvas;
-    public GameObject mainMenuVCam;
-    
+
     public List<GameObject> canvasSelectionList = new List<GameObject>();
 
     public static bool triggerSelectedSelection = false;
@@ -53,7 +52,7 @@ public class MainMenuManager : MonoBehaviour
         if (_triggerLoadingScreen) 
         {
             loadingScreen.transform.GetChild(0).GetChild(1).gameObject.transform.Rotate(0.0f, 0.0f, 1.0f);
-            SwapToolTipsText(5.0f);
+            SwapToolTipsText(3.0f);
         }
 
         if (triggerSelectedSelection && mainMenuCanvas.activeSelf == false)
@@ -66,13 +65,6 @@ public class MainMenuManager : MonoBehaviour
                 director.Play();
             }
         }
-    }
-
-    void PlayButtonClickedSound()
-    {
-        AudioSource audio = GetComponent<AudioSource>();
-        audio.clip = buttonClickedSound;
-        audio.Play();
     }
 
     void SwapToolTipsText(float seconds)
@@ -91,75 +83,47 @@ public class MainMenuManager : MonoBehaviour
     {
         yield return new WaitForSeconds(seconds);
         
-        if (_isQuit)
-        {
-            Debug.Log("Quit Game now!!! Dumbass");
-            Application.Quit();
-        }
-        else
-        {
-            AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(_scenelToLoad);
-            //AudioManager.Instance.StopMusic();
-            CutsceneManager.playInGameBGM = true;
-            // while (!asyncLoad.isDone)
-            // {
-            //     yield return null;
-            // }
-        }
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(_scenelToLoad);
+        CutsceneManager.playInGameBGM = true;
     }
-
-    // IEnumerator SwitchScene(float seconds)
-    // {
-    //     yield return new WaitForSeconds(seconds);
-    //
-    //     if (_isQuit)
-    //     {
-    //         Debug.Log("Quit");
-    //         Application.Quit();
-    //     }
-    //     else
-    //     {
-    //         SceneManager.LoadScene(_scenelToLoad);
-    //     }
-    // }
 
     public void PlayButtonClicked()
     {
         _scenelToLoad = "CutSceneScene";
-        PlayButtonClickedSound();
         mainMenuCanvas.SetActive(false);
         loadingScreen.SetActive(true);
         _triggerLoadingScreen = true;
         //FadeInBtn.showMenuBtn = true;
-        StartCoroutine(SwitchScene(1.0f));
+        StartCoroutine(SwitchScene(15.0f));
     }
 
     public void InstructionButtonClicked()
     {
-        mainMenuVCam.SetActive(false);
+        //mainMenuVCam.SetActive(false);
         triggerSelectedSelection = true;
-        PlayButtonClickedSound();
         ShowCanvasSelection.canvasToShow = canvasSelectionList[0];
     }
 
     public void OptionButtonClicked()
     {
-        mainMenuVCam.SetActive(false);
+        //mainMenuVCam.SetActive(false);
         triggerSelectedSelection = true;
-        PlayButtonClickedSound();
         ShowCanvasSelection.canvasToShow = canvasSelectionList[1];
     }
 
     public void CreditButtonClicked()
     {
-        
+        _scenelToLoad = "CreditScene";
+        mainMenuCanvas.SetActive(false);
+        loadingScreen.SetActive(true);
+        _triggerLoadingScreen = true;
+        StartCoroutine(SwitchScene(5.0f));
     }
 
     public void QuitButtonClicked()
     {
         _isQuit = true;
-        PlayButtonClickedSound();
-        StartCoroutine(SwitchScene(5.0f));
+        Application.Quit();
     }
 
     public static void DestroyOnReturnMenu()

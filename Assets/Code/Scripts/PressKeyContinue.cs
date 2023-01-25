@@ -20,6 +20,7 @@ public class PressKeyContinue : MonoBehaviour
     public GameObject titleImageObject;
     public GameObject textObject;
     public GameObject panelUIObject;
+    public GameObject instructionsVCam;
 
     public static bool returnMainMenu = false;
 
@@ -43,6 +44,7 @@ public class PressKeyContinue : MonoBehaviour
 
             titleImageObject.SetActive(false);
             textObject.SetActive(false);
+            instructionsVCam.SetActive(true);
         }
 
         if (director.time >= 5.0f && panelUIObject.activeSelf == false && _test == false)

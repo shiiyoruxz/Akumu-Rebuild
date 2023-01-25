@@ -20,6 +20,8 @@ public class FieldOfView : MonoBehaviour
     
     private Animator anim;
 
+    public static bool playSpotted = false;
+
     void Start()
     {
         anim = GetComponent<Animator>();
@@ -64,5 +66,11 @@ public class FieldOfView : MonoBehaviour
         // If no player is detected, reset the flag to false
         else if (canSeePlayer)
             canSeePlayer = false;
+
+        if (canSeePlayer && playSpotted == false && AIController.isChase == true)
+        {
+            AudioManager.Instance.PlaySFX("Spotted");
+            playSpotted = true;
+        }
     }
 }
