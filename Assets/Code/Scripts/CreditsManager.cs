@@ -31,6 +31,7 @@ public class CreditsManager : MonoBehaviour
         FadeInBtn.showMenuBtn = true;
         Inventory.numBattery = 0;
         CutsceneManager.currentCutscene = 0;
+        PlayerInteraction.surpriseToiletVent = true;
 
         SceneManager.LoadScene(0);
     }

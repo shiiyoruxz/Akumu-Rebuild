@@ -20,6 +20,7 @@ public class GameOver : MonoBehaviour
         gameObject.transform.parent.transform.parent.transform.parent.gameObject.transform.parent.gameObject.transform.GetChild(0).gameObject.SetActive(false);
         AIController.playerWantRetry = true;
         AIController.playerIsDead = false;
+        AIController.playOnce = true;
         Cursor.lockState = CursorLockMode.Locked;
     }
 
@@ -35,6 +36,7 @@ public class GameOver : MonoBehaviour
         //Jumpscare gameobject set to false
         gameObject.transform.parent.transform.parent.transform.parent.gameObject.transform.parent.gameObject.transform.GetChild(0).gameObject.SetActive(false);
         AIController.playerIsDead = false;
+        AIController.playOnce = true;
         Cursor.visible = true;
         CutsceneManager.currentCutscene = 0;
         SceneManager.LoadScene(0);

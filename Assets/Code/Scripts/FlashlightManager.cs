@@ -77,6 +77,7 @@ public class FlashlightManager : MonoBehaviour
             if (_flashlightToggle)
             {
                 torchlight.GetComponent<Light>().enabled = true;
+                _flashlightToggle = false;
             }
         }
     }

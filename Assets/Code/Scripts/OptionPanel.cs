@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,7 +12,7 @@ public class OptionPanel : MonoBehaviour
 
     private bool _initObjList = true;
     private string[] tagName = {"OptionToggle", "OptionSlider"};
-    
+
     // Start is called before the first frame update
     void Start()
     {
@@ -55,6 +56,9 @@ public class OptionPanel : MonoBehaviour
                     new Color32(100, 100, 100, 255);
             }
         }
+        
+        _sliderList[0].GetComponent<Slider>().value = AudioManager.Instance.musicSource.volume;
+        _sliderList[1].GetComponent<Slider>().value = AudioManager.Instance.sFXSource.volume;
     }
 
     public void ToggleMusic()

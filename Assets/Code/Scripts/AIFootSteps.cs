@@ -18,21 +18,14 @@ public class AIFootSteps : MonoBehaviour
     void Update()
     {
         if (agent.speed == 2.2f){
-            if (agent.speed == 3.8f)
-            {
-                footStepsSound.enabled = false;
-                sprintSound.enabled = true;
-            }
-            else
-            {
-                footStepsSound.enabled = true;
-                sprintSound.enabled = false;
-            }
+            footStepsSound.enabled = true;
+            sprintSound.enabled = false;
         }
-        else
+        
+        if (agent.speed >= 4.0f)
         {
             footStepsSound.enabled = false;
-            sprintSound.enabled = false;
+            sprintSound.enabled = true;
         }
     }
 }

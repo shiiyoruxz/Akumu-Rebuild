@@ -95,6 +95,7 @@ public class MainMenuManager : MonoBehaviour
         _triggerLoadingScreen = true;
         //FadeInBtn.showMenuBtn = true;
         StartCoroutine(SwitchScene(15.0f));
+        //AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(_scenelToLoad);
     }
 
     public void InstructionButtonClicked()
@@ -117,7 +118,7 @@ public class MainMenuManager : MonoBehaviour
         mainMenuCanvas.SetActive(false);
         loadingScreen.SetActive(true);
         _triggerLoadingScreen = true;
-        StartCoroutine(SwitchScene(5.0f));
+        StartCoroutine(SwitchScene(3.0f));
     }
 
     public void QuitButtonClicked()

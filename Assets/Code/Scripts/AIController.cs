@@ -34,9 +34,8 @@ public class AIController : MonoBehaviour
     
     public static bool playerIsDead = false;
     public static bool playerWantRetry = false;
-    private bool _playOnce = true;
+    public static bool playOnce = true;
 
-    
     // Start is called before the first frame update
     void Start()
     {
@@ -179,14 +178,14 @@ public class AIController : MonoBehaviour
 
     private void OnCollisionEnter(Collision col)
     {
-        if (col.transform.CompareTag(targetTag))
+        if (col.transform.CompareTag(targetTag) && playerIsDead == false && playOnce)
         {
+            playOnce = false;
             playerIsDead = true;
             triggerJumpScare();
             if (jumpScare.activeSelf == true)
             {
                 AudioManager.Instance.PlaySFX("JumpScare");
-                _playOnce = false;
             }
             StartCoroutine(triggerGameOver());
         }
@@ -201,7 +200,6 @@ public class AIController : MonoBehaviour
     void triggerJumpScare()
     {
         jumpScare.SetActive(true);
-        resetGhostPosition();
     }
 
     IEnumerator triggerGameOver()
@@ -210,6 +208,7 @@ public class AIController : MonoBehaviour
         jumpScare.SetActive(false);
         gameOver.SetActive(true);
         Time.timeScale = 0;
+        resetGhostPosition();
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None; // unlocks the cursor
     }

@@ -8,10 +8,12 @@ using UnityEngine.SceneManagement;
 
 public class EscPauseGame : MonoBehaviour
 {
-    public List <GameObject> ESCPanelList = new List<GameObject>();
+    public List<GameObject> ESCPanelList = new List<GameObject>();
     public GameObject firstPersonController;
     public TextMeshProUGUI targetText;
     public static bool gameIsPaused = false;
+    
+    public List<GameObject> UIToDisable = new List<GameObject>();
 
     private string _mainMenu = "MainMenuScene";
     private float _timer = 0;
@@ -46,6 +48,11 @@ public class EscPauseGame : MonoBehaviour
     {
         if (gameIsPaused && _triggerLoading == false)
         {
+            for (int i = 0; i < UIToDisable.Count; i++)
+            {
+                UIToDisable[i].SetActive(false);
+            }
+            
             Time.timeScale = 0.0f;
             ESCPanelList[0].transform.parent.gameObject.GetComponent<Canvas>().sortingOrder = 3;
             ESCPanelList[0].GetComponentInParent<Volume>().enabled = true;
@@ -62,6 +69,11 @@ public class EscPauseGame : MonoBehaviour
 
     void ResumeGame()
     {
+        for (int i = 0; i < UIToDisable.Count; i++)
+        {
+            UIToDisable[i].SetActive(true);
+        }
+        
         AudioManager.Instance.ResumeMusic();
         Time.timeScale = 1.0f;
         ESCPanelList[0].transform.parent.gameObject.GetComponent<Canvas>().sortingOrder = 0;
@@ -145,6 +157,7 @@ public class EscPauseGame : MonoBehaviour
     {
         MainMenuManager.returnMainMenu = true;
         FlashlightManager.firstBattery = true;
+        PlayerInteraction.surpriseToiletVent = true;
         Inventory.numBattery = 0;
         AudioManager.Instance.ResumeMusic();
         CutsceneManager.currentCutscene = 0;

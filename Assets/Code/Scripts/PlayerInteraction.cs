@@ -2,8 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Threading;
-using Mono.Cecil.Cil;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -26,6 +24,8 @@ public class PlayerInteraction : MonoBehaviour
     
     public static bool digitalLockIsOpen = false;
     public static bool hintTextShow = false;
+    public static bool surpriseToiletVent = true;
+    
     private bool GameIsOver = false;
     private bool doorIsOpen = true;
     public static bool ghostBookIsOpen = false;
@@ -47,7 +47,7 @@ public class PlayerInteraction : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        digitalPasswordUI.SetActive(false);
+        //digitalPasswordUI.SetActive(false);
         gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialAtTheBeginning").gameObject.SetActive(true);
     }
 
@@ -89,6 +89,7 @@ public class PlayerInteraction : MonoBehaviour
     {
         if (col.gameObject.name == "BucketFallDown")
         {
+            AudioManager.Instance.PlaySFX("MetalObjectDrop");
             col.gameObject.transform.parent.GetComponent<Animator>().SetBool("Trigger", true);
             gameObject.transform.parent.GetChild(0).gameObject.transform.GetChild(10).transform
                 .Find("SurpriseBucket").transform.GetChild(0).gameObject.SetActive(false);
@@ -343,10 +344,11 @@ public class PlayerInteraction : MonoBehaviour
                         }
                     }else if (hit.collider.gameObject.name == "2fMaleLockedToiletDoor")
                     {
-                        if (inventory.transform.Find("Male Toilet Key") != null)
+                        if (inventory.transform.Find("2F Male Toilet Key") != null)
                         {
                             hit.collider.gameObject.SetActive(false);
                             doorUnlockHintText();
+                            ObjectivesSystem.Instance.OptionalObjectivesActiveStatus();
                         }
                         else
                         {
@@ -375,17 +377,24 @@ public class PlayerInteraction : MonoBehaviour
                 }else if (hit.collider.gameObject.name == "ToiletSurpriseDoor")
                 {
                     gameObject.transform.parent.transform.GetChild(0).transform.GetChild(1).transform.GetChild(0).Find("blockvent").gameObject.SetActive(false);
-                    AudioManager.Instance.PlaySFX("DeadBodyFall");
-                    AudioManager.Instance.PlaySFX("GirlScream_02");
-                    // Surprise Dead body
-                    //dialog of dialGoingVent
-                    gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialGoingVent").gameObject.SetActive(true);
+
+                    if (surpriseToiletVent)
+                    {
+                        ObjectivesSystem.Instance.objectiveText.text = ObjectivesSystem.Instance.objectivesDescriptions[3];
+                        AudioManager.Instance.PlaySFX("DeadBodyFall");
+                        AudioManager.Instance.PlaySFX("GirlScream_02");
+                        // Surprise Dead body
+                        //dialog of dialGoingVent
+                        gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialGoingVent").gameObject.SetActive(true);
+                        surpriseToiletVent = false;
+                    }
                     AIController.patrolPhase = 1;
                 }
                 else if (hit.collider.gameObject.tag == "exit")
                 {
                     if (CutsceneManager.currentCutscene < 1 && inventory.transform.Find("Horror Doll") == null && inventory.transform.Find("Exit Key") == null)
                     {
+                        ObjectivesSystem.Instance.objectiveText.text = ObjectivesSystem.Instance.objectivesDescriptions[1];
                         CutsceneManager.currentCutscene++;
                         if (CutsceneManager.currentCutscene == 1)
                         {
@@ -416,6 +425,7 @@ public class PlayerInteraction : MonoBehaviour
                                 Destroy(gameObject.transform.parent.GetChild(n).gameObject);
                             }
                         }
+                        ObjectivesSystem.Instance.objectiveText.text = ObjectivesSystem.Instance.objectivesDescriptions[8];
                         SceneManager.LoadScene(3);
                     }
                 }
@@ -454,6 +464,7 @@ public class PlayerInteraction : MonoBehaviour
             if (item.name == "Exit Key")
             {
                 AudioManager.Instance.PlaySFX("PickUpKey");
+                ObjectivesSystem.Instance.objectiveText.text = ObjectivesSystem.Instance.objectivesDescriptions[6];
                 //dialog of dialGetExitKey
                 gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialGetExitKey").gameObject.SetActive(true);
             }
@@ -461,16 +472,33 @@ public class PlayerInteraction : MonoBehaviour
             if (item.name == "Horror Doll")
             {
                 AudioManager.Instance.PlaySFX("PickUpDoll");
+                ObjectivesSystem.Instance.objectiveText.text = ObjectivesSystem.Instance.objectivesDescriptions[7];
                 //dialog of dialGetDoll
                 gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialGetDoll").gameObject.SetActive(true);
                 AIController.patrolPhase = 4;
             }
 
-            if (item.name == "Male Toilet Key")
+            if (item.name == "2F Male Toilet Key")
             {
                 AudioManager.Instance.PlaySFX("PickUpKey");
-                //dialog of dialGetDoll
+                ObjectivesSystem.Instance.OptionalObjectivesActiveStatus();
+                //dialog of dialMaleToilet
                 gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialMaleToilet").gameObject.SetActive(true);
+            }
+            
+            if (item.name == "1F Female Toilet Key")
+            {
+                AudioManager.Instance.PlaySFX("PickUpKey");
+                ObjectivesSystem.Instance.objectiveText.text = ObjectivesSystem.Instance.objectivesDescriptions[2];
+                //dialog of dialFemaleToilet
+                gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialFemaleToilet").gameObject.SetActive(true);
+            }
+            
+            if (item.name == "Library Key")
+            {
+                AudioManager.Instance.PlaySFX("PickUpKey");
+                //dialog of dialFemaleToilet
+                //gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialMaleToilet").gameObject.SetActive(true);
             }
         }
         
@@ -484,12 +512,12 @@ public class PlayerInteraction : MonoBehaviour
         // AudioSource audio = GetComponent<AudioSource>();
         // audio.clip = openDoorSound[];
         // audio.Play();
-        if (door.GetComponent<Animator>().GetBool("Trigger"))
-        {
-            door.GetComponent<Animator>().SetBool("Trigger", false);
-        }
-        else
-        {
+        // if (door.GetComponent<Animator>().GetBool("Trigger"))
+        // {
+        //     door.GetComponent<Animator>().SetBool("Trigger", false);
+        // }
+        // else
+        // {
             if (currentDoor.tag == "ClassroomDoor")
             {
                 AudioManager.Instance.PlaySFX("SlideDoor");
@@ -540,7 +568,7 @@ public class PlayerInteraction : MonoBehaviour
                 }
             }
             
-        }
+        //}
         
     }
 
@@ -597,6 +625,8 @@ public class PlayerInteraction : MonoBehaviour
         currentDoor.SetActive(false);
         effect = GameObject.Find("DarkenScreen");
         effect.GetComponent<Animator>().SetBool("Trigger", false);
+        
+        ObjectivesSystem.Instance.objectiveText.text = ObjectivesSystem.Instance.objectivesDescriptions[4];
     }
     
     // Toilet Event
@@ -632,6 +662,7 @@ public class PlayerInteraction : MonoBehaviour
         gameObject.GetComponent<Rigidbody>().useGravity = false;
         gameObject.GetComponent<Rigidbody>().isKinematic = true;
         gameObject.GetComponent<FirstPersonController>().playerCanMove = false;
+        gameObject.GetComponent<FirstPersonController>().enableHeadBob = false;
         isHide = true;
     }
     
@@ -644,13 +675,14 @@ public class PlayerInteraction : MonoBehaviour
         gameObject.GetComponent<Rigidbody>().useGravity = true;
         gameObject.GetComponent<Rigidbody>().isKinematic = false;
         gameObject.GetComponent<FirstPersonController>().playerCanMove = true;
+        gameObject.GetComponent<FirstPersonController>().enableHeadBob = true;
         isHide = false;
     }
     
     //Surprise event
     void surpriseEventTrigger()
     {
-        AudioManager.Instance.PlaySFX("MetalObjectDrop");
+        Debug.Log("Suprise Event Triggered (Bucket Dropped)");
         //Bucket Area Active
         gameObject.transform.parent.GetChild(0).gameObject.transform.GetChild(10).transform
             .Find("SurpriseBucket").transform.GetChild(0).gameObject.SetActive(true);
@@ -659,7 +691,7 @@ public class PlayerInteraction : MonoBehaviour
     IEnumerator gameCompleted()
     {
         //Load cutscene
-        yield return new WaitForSeconds(4.0f);
+        yield return new WaitForSeconds(5.0f);
         CreditsManager.runOnce = true;
         SceneManager.LoadScene("CreditScene");
         Destroy(GameObject.Find("NoDestroyObject"));
@@ -673,7 +705,7 @@ public class PlayerInteraction : MonoBehaviour
 
         if (itemIndex >= 0 && itemIndex < gameObject.transform.GetChild(3).transform.childCount)
         {
-            gameObject.transform.GetChild(4).transform.GetChild(0).transform.GetChild(1).gameObject.GetComponent<Text>().text = gameObject.transform.GetChild(3).transform.GetChild(itemIndex).gameObject.name;
+            gameObject.transform.GetChild(4).transform.GetChild(0).transform.GetChild(0).transform.GetChild(1).gameObject.GetComponent<Text>().text = gameObject.transform.GetChild(3).transform.GetChild(itemIndex).gameObject.name;
             
             if (Input.GetKeyDown(KeyCode.Q))
             {
