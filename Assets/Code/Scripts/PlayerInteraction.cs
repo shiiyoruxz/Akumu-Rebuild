@@ -426,6 +426,8 @@ public class PlayerInteraction : MonoBehaviour
                             }
                         }
                         ObjectivesSystem.Instance.objectiveText.text = ObjectivesSystem.Instance.objectivesDescriptions[8];
+                        ObjectivesSystem.Instance.ObjectivePanelUI.transform.GetChild(2).gameObject.SetActive(false);
+                        ObjectivesSystem.Instance.ObjectivePanelUI.transform.GetChild(3).gameObject.SetActive(false);
                         SceneManager.LoadScene(3);
                     }
                 }
