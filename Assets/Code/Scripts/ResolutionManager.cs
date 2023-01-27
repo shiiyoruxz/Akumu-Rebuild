@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,7 +12,12 @@ public class ResolutionManager : MonoBehaviour
 
     private float currentRefreshRate;
     private int currentResolutionIndex = 0;
-    
+
+    private void Awake()
+    {
+        Application.targetFrameRate = 165;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
