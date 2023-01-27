@@ -5,6 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class EscPauseGame : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class EscPauseGame : MonoBehaviour
     public static bool gameIsPaused = false;
     
     public List<GameObject> UIToDisable = new List<GameObject>();
+    public List<GameObject> VoiceOverPause = new List<GameObject>();
 
     private string _mainMenu = "MainMenuScene";
     private float _timer = 0;
@@ -53,6 +55,15 @@ public class EscPauseGame : MonoBehaviour
                 UIToDisable[i].SetActive(false);
             }
             
+            for (int i = 0; i < VoiceOverPause.Count; i++)
+            {
+                if (VoiceOverPause[i].activeSelf)
+                {
+                    VoiceOverPause[i].GetComponent<Text>().enabled = false;
+                    VoiceOverPause[i].GetComponent<AudioSource>().Pause();
+                }
+            }
+            
             Time.timeScale = 0.0f;
             ESCPanelList[0].transform.parent.gameObject.GetComponent<Canvas>().sortingOrder = 3;
             ESCPanelList[0].GetComponentInParent<Volume>().enabled = true;
@@ -72,6 +83,15 @@ public class EscPauseGame : MonoBehaviour
         for (int i = 0; i < UIToDisable.Count; i++)
         {
             UIToDisable[i].SetActive(true);
+        }
+        
+        for (int i = 0; i < VoiceOverPause.Count; i++)
+        {
+            if (VoiceOverPause[i].activeSelf)
+            {
+                VoiceOverPause[i].GetComponent<Text>().enabled = true;
+                VoiceOverPause[i].GetComponent<AudioSource>().UnPause();
+            }
         }
         
         AudioManager.Instance.ResumeMusic();

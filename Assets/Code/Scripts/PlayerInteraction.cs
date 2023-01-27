@@ -36,6 +36,8 @@ public class PlayerInteraction : MonoBehaviour
     private GameObject effect;
     public GameObject inventory;
     private GameObject destroyDoor;
+    public GameObject moveWindows;
+    public GameObject disableBlockingArea;
     
     int startIndex = 0;
     int endIndex = 0;
@@ -395,6 +397,8 @@ public class PlayerInteraction : MonoBehaviour
                     if (CutsceneManager.currentCutscene < 1 && inventory.transform.Find("Horror Doll") == null && inventory.transform.Find("Exit Key") == null)
                     {
                         ObjectivesSystem.Instance.objectiveText.text = ObjectivesSystem.Instance.objectivesDescriptions[1];
+                        moveWindows.transform.localPosition = new Vector3(-0.404f, 0, 0);
+                        disableBlockingArea.SetActive(false);
                         CutsceneManager.currentCutscene++;
                         if (CutsceneManager.currentCutscene == 1)
                         {
