@@ -1,0 +1,735 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Drawing;
+using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+public class PlayerInteraction : MonoBehaviour
+{
+    public float pickUpDistance = 0.5f;
+    
+    public float doorOpenTime = 3.0f;
+    public List<GameObject> twoDoorType = new List<GameObject>();
+
+    public static string[] doorTags =
+    {
+        "ClassroomDoor", "ToiletDoor", "InfirmaryTwoDoor", "InfirmaryOneDoor", "GymOnePushDoor", "LibraryDoor",
+        "ToiletInDoor", "MusicDoor", "JumpScareDoor"
+    };
+    public GameObject digitalPasswordUI;
+    public GameObject firstPersonController;
+    
+    public static bool digitalLockIsOpen = false;
+    public static bool hintTextShow = false;
+    public static bool surpriseToiletVent = true;
+    
+    private bool GameIsOver = false;
+    private bool doorIsOpen = true;
+    public static bool ghostBookIsOpen = false;
+    public static bool diaryIsOpen = false;
+    private GameObject currentDoor;
+    private GameObject currentObject;
+    private GameObject playerCheckPoint;
+    private GameObject effect;
+    public GameObject inventory;
+    private GameObject destroyDoor;
+    public GameObject moveWindows;
+    public GameObject disableBlockingArea;
+    
+    int startIndex = 0;
+    int endIndex = 0;
+
+    public int itemIndex = 0;
+    private static bool isHide = false;
+    private static Transform temp_position;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        //digitalPasswordUI.SetActive(false);
+        gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialAtTheBeginning").gameObject.SetActive(true);
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        DoorInteraction();
+        MapInteraction();
+        itemSwitching();
+        batteryCount();
+        if (EscPauseGame.gameIsPaused)
+        {
+            gameObject.transform.GetChild(0).transform.GetChild(0).transform.GetChild(2).gameObject.SetActive(false);
+        }
+        else
+        {
+            gameObject.transform.GetChild(0).transform.GetChild(0).transform.GetChild(2).gameObject.SetActive(true);
+        }
+
+        if (GameIsOver)
+        {
+            StartCoroutine(gameCompleted());
+        }
+        
+        //Check num of battery && show reload text
+        if (gameObject.transform.GetChild(0).transform.GetChild(0).transform.GetChild(1).GetComponent<Light>().intensity <= 1.7 && !FlashlightManager.firstBattery && Inventory.numBattery > 0)
+        {
+            gameObject.transform.GetChild(0).transform.GetChild(0).transform.GetChild(2).transform.GetChild(1).gameObject.SetActive(true);
+        }
+        else
+        {
+            gameObject.transform.GetChild(0).transform.GetChild(0).transform.GetChild(2).transform.GetChild(1).gameObject.SetActive(false);
+        }
+
+
+    }
+
+    private void OnTriggerEnter(Collider col)
+    {
+        if (col.gameObject.name == "BucketFallDown")
+        {
+            AudioManager.Instance.PlaySFX("MetalObjectDrop");
+            col.gameObject.transform.parent.GetComponent<Animator>().SetBool("Trigger", true);
+            gameObject.transform.parent.GetChild(0).gameObject.transform.GetChild(10).transform
+                .Find("SurpriseBucket").transform.GetChild(0).gameObject.SetActive(false);
+            AIController.patrolPhase = 3;
+        }
+    }
+
+    void MapInteraction()
+    {
+        RaycastHit hit;
+
+        // Map Interaction
+        Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
+
+        if (Physics.Raycast(ray, out hit, pickUpDistance))
+        {
+            if (hit.collider.tag != "Untagged")
+            {
+                //Press E to interact text
+                gameObject.transform.GetChild(0).transform.GetChild(0).transform.GetChild(2).transform.GetChild(0).gameObject.SetActive(true);
+            }
+            
+            // Check if the hit object has the "PickUp" tag
+            if (hit.collider.tag == "Collectable")
+            {
+                // Pick up the item
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    PickUp(hit.collider.gameObject);
+                    
+                }
+            }
+            if (hit.collider.tag == "Book")
+            {
+                // Trigger Book
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    if (hit.collider.gameObject.name == "ghostBook")
+                    {
+                        // Open the book
+                        if (ghostBookIsOpen)
+                        {
+                            //dialog of read ghost book
+                            gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialGhostBook").gameObject.SetActive(true);
+                            firstPersonController.GetComponent<FirstPersonController>().enabled = true;
+                            gameObject.transform.parent.transform.GetChild(0).transform.GetChild(6).gameObject.SetActive(false);
+                            ghostBookIsOpen = false;
+                        }
+                        else
+                        {
+                            AudioManager.Instance.PlaySFX("PickUpNotes");
+                            firstPersonController.GetComponent<FirstPersonController>().enabled = false;
+                            gameObject.transform.parent.transform.GetChild(0).transform.GetChild(6).gameObject.SetActive(true);
+                            ghostBookIsOpen = true;
+                        }
+                    }
+                    
+                    if (hit.collider.gameObject.name == "Diary")
+                    {
+                        // Open the book
+                        if (diaryIsOpen)
+                        {
+                            //dialog of read ghost book
+                            gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialDiary").gameObject.SetActive(true);
+                            firstPersonController.GetComponent<FirstPersonController>().enabled = true;
+                            gameObject.transform.parent.transform.GetChild(0).transform.GetChild(9).gameObject.SetActive(false);
+                            diaryIsOpen = false;
+                        }
+                        else
+                        {
+                            AudioManager.Instance.PlaySFX("PickUpNotes");
+                            firstPersonController.GetComponent<FirstPersonController>().enabled = false;
+                            gameObject.transform.parent.transform.GetChild(0).transform.GetChild(9).gameObject.SetActive(true);
+                            diaryIsOpen = true;
+                        }
+                    }
+                }
+                
+                if (diaryIsOpen)
+                {
+                    if (Input.GetKeyDown(KeyCode.Escape))
+                    {
+                        // Debug.Log("Hahah helo noob yz");
+                        gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialDiary").gameObject.SetActive(true);
+                        firstPersonController.GetComponent<FirstPersonController>().enabled = true;
+                        gameObject.transform.parent.transform.GetChild(0).transform.GetChild(9).gameObject.SetActive(false);
+                        diaryIsOpen = false;
+                    }
+                }
+                
+                if (ghostBookIsOpen)
+                {
+                    if (Input.GetKeyDown(KeyCode.Escape))
+                    {
+                        gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialGhostBook").gameObject.SetActive(true);
+                        firstPersonController.GetComponent<FirstPersonController>().enabled = true;
+                        gameObject.transform.parent.transform.GetChild(0).transform.GetChild(6).gameObject.SetActive(false);
+                        ghostBookIsOpen = false;
+                    }
+                }
+            }
+            if (hit.collider.tag == "ToiletVent")
+            {
+                // Trigger Vent
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    currentObject = hit.collider.gameObject;
+                    ToiletEventTrigger(currentObject);
+                }
+            }
+            if (hit.collider.tag == "DigitalPasswordLock")
+            {
+                // Trigger Digital Password Lock
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    if (!digitalLockIsOpen)
+                    {
+                        UnlockInfirmaryDoor();
+                        digitalLockIsOpen = true;
+                    }
+                    else
+                    {
+                        //Digital password lock panel
+                        gameObject.transform.parent.transform.GetChild(0).gameObject.transform.GetChild(8).gameObject.transform.GetChild(0).gameObject.SetActive(false);
+                        digitalPasswordUI.transform.parent.GetComponent<Canvas>().sortingOrder = 0;
+                        Cursor.lockState = CursorLockMode.Locked;
+                        firstPersonController.GetComponent<FirstPersonController>().enabled = true;
+                        digitalLockIsOpen = false;
+                    }
+                    
+                }
+
+                if (digitalLockIsOpen)
+                {
+                    if (Input.GetKeyDown(KeyCode.Escape))
+                    {
+                        //Digital password lock panel
+                        gameObject.transform.parent.transform.GetChild(0).gameObject.transform.GetChild(8).gameObject.transform.GetChild(0).gameObject.SetActive(false);
+                        digitalPasswordUI.transform.parent.GetComponent<Canvas>().sortingOrder = 0;
+                        Cursor.lockState = CursorLockMode.Locked;
+                        firstPersonController.GetComponent<FirstPersonController>().enabled = true;
+                        digitalLockIsOpen = false;
+                    }
+                }
+                
+            }
+            if (hit.collider.gameObject.name == "TriggerBurnEffect")
+            {
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    GameObject.Find("Decoration").gameObject.transform.GetChild(3).gameObject.transform.GetChild(1).gameObject.SetActive(true);
+                    Destroy(inventory.transform.Find("Horror Doll").gameObject);
+                    GameIsOver = true;
+                }
+            }
+        }
+        else
+        {
+            gameObject.transform.GetChild(0).transform.GetChild(0).transform.GetChild(2).transform.GetChild(0).gameObject.SetActive(false);
+        }
+    }
+
+    void DoorInteraction()
+    {
+        RaycastHit hit;
+
+        
+        // Check for "E" key being released
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            // Check for a door in front of the player
+            if (Physics.Raycast(transform.position, transform.forward, out hit, pickUpDistance))
+            {
+                // // Check for a door with a matching tag
+                foreach (string doorTag in doorTags)
+                {
+                    if (hit.collider.gameObject.tag == doorTag)
+                    {
+                        currentDoor = hit.collider.gameObject;
+                        OneDoorInteraction(currentDoor);
+                    }
+                }
+                
+                // Check for a multi-door with a matching tag
+                // Open or close the door based on its current state
+                if (hit.collider.gameObject.tag == "LabDoor")
+                {
+                    currentDoor = hit.collider.gameObject;
+                    startIndex = 0;
+                    endIndex = 2;
+                    OpenCloseMultiDoor(startIndex, endIndex);
+                }
+                else if (hit.collider.gameObject.tag == "LabDoor2")
+                {
+                    currentDoor = hit.collider.gameObject;
+                    startIndex = 2;
+                    endIndex = 4;
+                    OpenCloseMultiDoor(startIndex, endIndex);
+                }
+                else if (hit.collider.gameObject.tag == "GymSD1")
+                {
+                    currentDoor = hit.collider.gameObject;
+                    startIndex = 4;
+                    endIndex = 6;
+                    AudioManager.Instance.PlaySFX("SlideDoor");
+                    OpenCloseMultiDoor(startIndex, endIndex);
+                }
+                else if (hit.collider.gameObject.tag == "GymSD2")
+                {
+                    currentDoor = hit.collider.gameObject;
+                    startIndex = 6;
+                    endIndex = 8;
+                    AudioManager.Instance.PlaySFX("SlideDoor");
+                    OpenCloseMultiDoor(startIndex, endIndex);
+                }
+                else if (hit.collider.gameObject.tag == "GymSD3")
+                {
+                    currentDoor = hit.collider.gameObject;
+                    startIndex = 8;
+                    endIndex = 10;
+                    AudioManager.Instance.PlaySFX("SlideDoor");
+                    OpenCloseMultiDoor(startIndex, endIndex);
+                }
+                else if (hit.collider.gameObject.tag == "LockedDoor")
+                {
+                    if (hit.collider.gameObject.name == "1fFemaleLockedToiletDoor")
+                    {
+                        if (inventory.transform.Find("1F Female Toilet Key") != null)
+                        {
+                            AudioManager.Instance.PlaySFX("KeyUnlockedDoor");
+                            hit.collider.gameObject.SetActive(false);
+                            doorUnlockHintText();
+                        }
+                        else
+                        {
+                            DoorLockedDialogue();
+                        }
+                    }else if (hit.collider.gameObject.name == "PasswordLock")
+                    {
+                        gameObject.transform.GetChild(2).GetChild(0).Find("dialNeedPwd").gameObject.SetActive(true);
+                    }else if (hit.collider.gameObject.name == "LockedLibraryDoor")
+                    {
+                        if (inventory.transform.Find("Library Key") != null)
+                        {
+                            AudioManager.Instance.PlaySFX("PickUpKey");
+                            hit.collider.gameObject.SetActive(false);
+                            doorUnlockHintText();
+                        }
+                        else
+                        {
+                            DoorLockedDialogue();
+                        }
+                    }else if (hit.collider.gameObject.name == "2fMaleLockedToiletDoor")
+                    {
+                        if (inventory.transform.Find("2F Male Toilet Key") != null)
+                        {
+                            hit.collider.gameObject.SetActive(false);
+                            doorUnlockHintText();
+                            ObjectivesSystem.Instance.OptionalObjectivesActiveStatus();
+                        }
+                        else
+                        {
+                            DoorLockedDialogue();
+                        }
+                    
+                    }
+                    else
+                    {
+                        DoorLockedDialogue();
+                    }
+                    
+                }
+                else if (hit.collider.gameObject.tag == "Locker")
+                {
+                    if (!isHide)
+                    {
+                        temp_position = gameObject.transform;
+                        gameObject.transform.position = hit.collider.gameObject.transform.position;
+                        HideLocker();
+                    }
+                    else
+                    {
+                        UnhideLocker();
+                    }
+                }else if (hit.collider.gameObject.name == "ToiletSurpriseDoor")
+                {
+                    gameObject.transform.parent.transform.GetChild(0).transform.GetChild(1).transform.GetChild(0).Find("blockvent").gameObject.SetActive(false);
+
+                    if (surpriseToiletVent)
+                    {
+                        ObjectivesSystem.Instance.objectiveText.text = ObjectivesSystem.Instance.objectivesDescriptions[3];
+                        AudioManager.Instance.PlaySFX("DeadBodyFall");
+                        AudioManager.Instance.PlaySFX("GirlScream_02");
+                        // Surprise Dead body
+                        //dialog of dialGoingVent
+                        gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialGoingVent").gameObject.SetActive(true);
+                        surpriseToiletVent = false;
+                    }
+                    AIController.patrolPhase = 1;
+                }
+                else if (hit.collider.gameObject.tag == "exit")
+                {
+                    if (CutsceneManager.currentCutscene < 1 && inventory.transform.Find("Horror Doll") == null && inventory.transform.Find("Exit Key") == null)
+                    {
+                        ObjectivesSystem.Instance.objectiveText.text = ObjectivesSystem.Instance.objectivesDescriptions[1];
+                        moveWindows.transform.localPosition = new Vector3(-0.404f, 0, 0);
+                        disableBlockingArea.SetActive(false);
+                        CutsceneManager.currentCutscene++;
+                        if (CutsceneManager.currentCutscene == 1)
+                        {
+                            destroyDoor = GameObject.FindWithTag("destroyDoor");
+                            destroyDoor.transform.localPosition = new Vector3(0, 0.015f, -1.352f);
+                            destroyDoor.transform.localRotation = Quaternion.Euler(-89.386f, 0, 0);
+                        }
+                        SceneManager.LoadScene(1);
+                        //dialog of dialWhenSeeGhost
+                        gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialWhenSeeGhost").gameObject.SetActive(true);
+                    }
+                    else if (inventory.transform.Find("Horror Doll") == null && inventory.transform.Find("Exit Key") == null)
+                    {
+                        //dialog of dialToOpenExit
+                        gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialToOpenExit").gameObject.SetActive(true);
+                    }
+                    else
+                    {
+                        for (int n = 0; n < gameObject.transform.parent.childCount; n++)
+                        {
+                            if (gameObject.transform.parent.GetChild(n).gameObject.name != gameObject.name)
+                            {
+                                if (gameObject.transform.parent.GetChild(n).gameObject.name ==
+                                    gameObject.transform.parent.GetChild(4).name)
+                                {
+                                    continue;
+                                }
+                                Destroy(gameObject.transform.parent.GetChild(n).gameObject);
+                            }
+                        }
+                        ObjectivesSystem.Instance.objectiveText.text = ObjectivesSystem.Instance.objectivesDescriptions[8];
+                        ObjectivesSystem.Instance.ObjectivePanelUI.transform.GetChild(2).gameObject.SetActive(false);
+                        ObjectivesSystem.Instance.ObjectivePanelUI.transform.GetChild(3).gameObject.SetActive(false);
+                        SceneManager.LoadScene(3);
+                    }
+                }
+                /*
+                else if (hit.collider.gameObject.name == "TriggerBurnEffect")
+                {
+                    if (Input.GetKeyDown(KeyCode.E))
+                    {
+                        GameObject.Find("Decoration").gameObject.transform.GetChild(3).gameObject.transform.GetChild(1).gameObject.SetActive(true);
+                        Destroy(inventory.transform.Find("Horror Doll").gameObject);
+                        GameIsOver = true;
+                    }
+                }
+                */
+            }
+        }
+
+    }
+    
+    // Item Pickup
+    void PickUp(GameObject item)
+    {
+        if (item.name == "battery")
+        {
+            AudioManager.Instance.PlaySFX("PickUpItems");
+            Inventory.numBattery++;
+            Destroy(item);
+        }
+        else
+        {
+            // Add the item to the player's inventory or perform some other action
+            item.SetActive(false);
+            item.transform.SetParent(inventory.transform);
+            // Debug.Log("Pick up!");
+        
+            if (item.name == "Exit Key")
+            {
+                AudioManager.Instance.PlaySFX("PickUpKey");
+                ObjectivesSystem.Instance.objectiveText.text = ObjectivesSystem.Instance.objectivesDescriptions[6];
+                //dialog of dialGetExitKey
+                gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialGetExitKey").gameObject.SetActive(true);
+            }
+
+            if (item.name == "Horror Doll")
+            {
+                AudioManager.Instance.PlaySFX("PickUpDoll");
+                ObjectivesSystem.Instance.objectiveText.text = ObjectivesSystem.Instance.objectivesDescriptions[7];
+                //dialog of dialGetDoll
+                gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialGetDoll").gameObject.SetActive(true);
+                AIController.patrolPhase = 4;
+            }
+
+            if (item.name == "2F Male Toilet Key")
+            {
+                AudioManager.Instance.PlaySFX("PickUpKey");
+                ObjectivesSystem.Instance.OptionalObjectivesActiveStatus();
+                //dialog of dialMaleToilet
+                gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialMaleToilet").gameObject.SetActive(true);
+            }
+            
+            if (item.name == "1F Female Toilet Key")
+            {
+                AudioManager.Instance.PlaySFX("PickUpKey");
+                ObjectivesSystem.Instance.objectiveText.text = ObjectivesSystem.Instance.objectivesDescriptions[2];
+                //dialog of dialFemaleToilet
+                gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialFemaleToilet").gameObject.SetActive(true);
+            }
+            
+            if (item.name == "Library Key")
+            {
+                AudioManager.Instance.PlaySFX("PickUpKey");
+                //dialog of dialFemaleToilet
+                //gameObject.transform.GetChild(2).transform.GetChild(0).gameObject.transform.Find("dialMaleToilet").gameObject.SetActive(true);
+            }
+        }
+        
+
+
+    }
+
+    // Door Open
+    void OneDoorInteraction(GameObject door)
+    {
+        // AudioSource audio = GetComponent<AudioSource>();
+        // audio.clip = openDoorSound[];
+        // audio.Play();
+        // if (door.GetComponent<Animator>().GetBool("Trigger"))
+        // {
+        //     door.GetComponent<Animator>().SetBool("Trigger", false);
+        // }
+        // else
+        // {
+            if (currentDoor.tag == "ClassroomDoor")
+            {
+                AudioManager.Instance.PlaySFX("SlideDoor");
+                if (door.GetComponent<Animator>().GetBool("Trigger"))
+                {
+                    door.GetComponent<Animator>().SetBool("Trigger", false);
+                }
+                else
+                {
+                    door.GetComponent<Animator>().SetBool("Trigger", true);
+                }
+            }
+            else if (currentDoor.tag == "JumpScareDoor")
+            {
+                AudioManager.Instance.PlaySFX("True");
+                if (door.GetComponent<Animator>().GetBool("Trigger"))
+                {
+                    door.GetComponent<Animator>().SetBool("Trigger", false);
+                }
+                else
+                {
+                    door.GetComponent<Animator>().SetBool("Trigger", true);
+                }
+            }
+            else if (currentDoor.tag == "MusicDoor")
+            {
+                AudioManager.Instance.PlaySFX("BirthdayBoi");
+                if (door.GetComponent<Animator>().GetBool("Trigger"))
+                {
+                    door.GetComponent<Animator>().SetBool("Trigger", false);
+                }
+                else
+                {
+                    door.GetComponent<Animator>().SetBool("Trigger", true);
+                }
+            }
+            else
+            {
+                if (door.GetComponent<Animator>().GetBool("Trigger"))
+                {
+                    AudioManager.Instance.PlaySFX("DoorClosed_02");
+                    door.GetComponent<Animator>().SetBool("Trigger", false);
+                }
+                else
+                {
+                    AudioManager.Instance.PlaySFX("DoorOpen_02");
+                    door.GetComponent<Animator>().SetBool("Trigger", true);
+                }
+            }
+            
+        //}
+        
+    }
+
+    // Close and Open for Two Door
+    void OpenCloseMultiDoor(int startIndex, int endIndex)
+    {
+        // Toggle doorIsOpen flag
+        doorIsOpen = !doorIsOpen;
+
+        if (doorIsOpen == true && ((startIndex == 0 && endIndex == 2) || (startIndex == 2 && endIndex == 4)))
+        {
+            AudioManager.Instance.PlaySFX("DoorOpen_01");
+        }
+        else if (doorIsOpen == false && ((startIndex == 0 && endIndex == 2) || (startIndex == 2 && endIndex == 4)))
+        {
+            AudioManager.Instance.PlaySFX("DoorClosed_01");
+        }
+        
+        // Open or close doors
+        for (int i = startIndex; i < endIndex; i++)
+        {
+            GameObject door = twoDoorType[i];
+            Animator animator = door.GetComponent<Animator>();
+            animator.SetBool("Trigger", doorIsOpen);
+        }
+    }
+
+
+    void DoorLockedDialogue()
+    {
+        AudioManager.Instance.PlaySFX("KeyJiggle");
+        gameObject.transform.GetChild(2).GetChild(0).Find("dialDoorLock").gameObject.SetActive(true);
+    }
+    
+    void doorUnlockHintText()
+    {
+        gameObject.transform.GetChild(2).GetChild(0).Find("dialDoorUnlock").gameObject.SetActive(true);
+    }
+    
+    IEnumerator playerTeleportToLab()
+    {
+        // Wait for 3 seconds
+        yield return new WaitForSeconds(2.5f);
+        
+        // Do something after 3 seconds
+        // Change player checkpoint
+        AudioManager.Instance.PlaySFX("VentOpenSound");
+        gameObject.transform.localPosition = new Vector3(12.10f, 0.547f, -23.089f);
+        gameObject.transform.localRotation = Quaternion.Euler(0f, -23.602f, 0f);
+        //Bucket Area Active
+        surpriseEventTrigger();
+        
+        currentDoor = GameObject.Find("LockedLabDoor");
+        currentDoor.SetActive(false);
+        effect = GameObject.Find("DarkenScreen");
+        effect.GetComponent<Animator>().SetBool("Trigger", false);
+        
+        ObjectivesSystem.Instance.objectiveText.text = ObjectivesSystem.Instance.objectivesDescriptions[4];
+    }
+    
+    // Toilet Event
+    void ToiletEventTrigger(GameObject currentObject)
+    {
+        // Vent animate
+        AudioManager.Instance.PlaySFX("VentOpenSound");
+        currentObject.transform.localPosition = new Vector3(2.851f, 0.06018281f, 10.52258f);
+        currentObject.transform.localRotation = Quaternion.Euler(-90f, 112.884f, 0f);
+       
+        effect = GameObject.Find("DarkenScreen");
+        effect.GetComponent<Animator>().SetBool("Trigger", true);
+        AudioManager.Instance.PlaySFX("InVentCrawling_02");
+        //When the player open the female toilet
+        AIController.patrolPhase = 2;
+        StartCoroutine(playerTeleportToLab());
+    }
+
+    // Trigger Infirmary Digital Lock to unlock the Door
+    void UnlockInfirmaryDoor()
+    {
+        digitalPasswordUI.SetActive(true);
+        digitalPasswordUI.transform.parent.GetComponent<Canvas>().sortingOrder = 1;
+        Cursor.lockState = CursorLockMode.None;
+        firstPersonController.GetComponent<FirstPersonController>().enabled = false;
+    }
+
+    void HideLocker()
+    {
+        AudioManager.Instance.PlaySFX("LockerDoorOpen");
+        gameObject.transform.Translate(0, 1.0f, 0);
+        gameObject.transform.rotation = Quaternion.Euler(0.0f, 0.0f ,0.0f);
+        gameObject.GetComponent<Rigidbody>().useGravity = false;
+        gameObject.GetComponent<Rigidbody>().isKinematic = true;
+        gameObject.GetComponent<FirstPersonController>().playerCanMove = false;
+        gameObject.GetComponent<FirstPersonController>().enableHeadBob = false;
+        isHide = true;
+    }
+    
+    void UnhideLocker()
+    {
+        AudioManager.Instance.PlaySFX("LockerDoorClose");
+        gameObject.transform.position = temp_position.position;
+        gameObject.transform.Translate(0, -1.0f, 0.5f);
+        gameObject.transform.rotation = Quaternion.Euler(0.0f, 0.0f ,0.0f);
+        gameObject.GetComponent<Rigidbody>().useGravity = true;
+        gameObject.GetComponent<Rigidbody>().isKinematic = false;
+        gameObject.GetComponent<FirstPersonController>().playerCanMove = true;
+        gameObject.GetComponent<FirstPersonController>().enableHeadBob = true;
+        isHide = false;
+    }
+    
+    //Surprise event
+    void surpriseEventTrigger()
+    {
+        Debug.Log("Suprise Event Triggered (Bucket Dropped)");
+        //Bucket Area Active
+        gameObject.transform.parent.GetChild(0).gameObject.transform.GetChild(10).transform
+            .Find("SurpriseBucket").transform.GetChild(0).gameObject.SetActive(true);
+    }
+
+    IEnumerator gameCompleted()
+    {
+        //Load cutscene
+        yield return new WaitForSeconds(5.0f);
+        CreditsManager.runOnce = true;
+        SceneManager.LoadScene("CreditScene");
+        Destroy(GameObject.Find("NoDestroyObject"));
+        // Debug.Log("Credit Scene!!!!!!");
+    }
+    
+    
+
+    void itemSwitching()
+    {
+
+        if (itemIndex >= 0 && itemIndex < gameObject.transform.GetChild(3).transform.childCount)
+        {
+            gameObject.transform.GetChild(4).transform.GetChild(0).transform.GetChild(0).transform.GetChild(1).gameObject.GetComponent<Text>().text = gameObject.transform.GetChild(3).transform.GetChild(itemIndex).gameObject.name;
+            
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                itemIndex++;
+
+            }
+        }
+        else
+        {
+            itemIndex = 0;
+        }
+
+    }
+
+    void batteryCount()
+    {
+        gameObject.transform.GetChild(5).transform.GetChild(0).transform.GetChild(0).transform.GetChild(2).gameObject.GetComponent<Text>().text = Inventory.numBattery.ToString();
+    }
+    
+
+}

@@ -5,6 +5,43 @@ TagManager:
   serializedVersion: 2
   tags:
   - Monster
+  - OptionToggle
+  - OptionSlider
+  - Battery
+  - Collectable
+  - cutscene
+  - destroyDoor
+  - door
+  - Locker
+  - ClassroomDoor
+  - PushDoor
+  - InfirmarySlideDoor
+  - Collectible
+  - ToiletDoor
+  - InfirmaryOneSideDoor
+  - LabDoor
+  - JumpScareDoor
+  - ToiletInDoor
+  - GymOnePushDoor
+  - LockedDoor
+  - MusicDoor
+  - GymSD3
+  - GymSD2
+  - LabDoor2
+  - GymSD1
+  - Colletable
+  - LibraryDoor
+  - InfirmaryOneDoor
+  - DigitalPasswordLock
+  - InfirmaryTwoDoor
+  - SlideDoor
+  - GymSlideDoor
+  - exit
+  - FemaleToiletDoor
+  - dial_doorlocked
+  - ToiletVent
+  - Book
+  - RustedHouse
   layers:
   - Default
   - TransparentFX
